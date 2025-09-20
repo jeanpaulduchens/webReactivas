@@ -1,0 +1,8 @@
+{
+  "name": "barberia-backend",
+  "private": true,
+  "scripts": {
+    "server": "json-server -p 3001 -w db.json"
+  },
+  "devDependencies": { "json-server": "^1.0.0-beta.3" }
+}
