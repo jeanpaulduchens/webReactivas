@@ -1,6 +1,14 @@
-import {useEffect, useState} from 'react';
+import type { Service } from "@types/domain"
 
-export const ServicesList = ({ title = 'Servicios', services, onSelectService }: ServicesListProps) => {
+interface ServicesListProps {
+  title?: string;
+  services: Service[];
+  onSelectService?: (id: number) => void;
+  selectedId?: number;
+}
+
+export const ServicesList = ({ title = 'Servicios', services, onSelectService, selectedId }: ServicesListProps) => {
+  //const isSelected  = (id: number) => selectedId === id;
   return (
     <div>
       <h2>{title}</h2>
@@ -8,11 +16,11 @@ export const ServicesList = ({ title = 'Servicios', services, onSelectService }:
         {services.map((s) => (
           <li key={s.id}>
             <strong>{s.name}</strong> — {s.durationMin} min — ${s.price}
-            {onSelectService && (
-              <button type="button" onClick={() => onSelectService(s)} style={{ marginLeft: 8 }}>
+            (
+              <button type="button" onClick={() => onSelectService?.(s.id)} style={{ marginLeft: 8 }}>
                 Elegir
               </button>
-            )}
+            )
           </li>
         ))}
       </ul>
