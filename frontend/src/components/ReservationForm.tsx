@@ -1,5 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Service } from '@types/domain';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
+import api from '@api/endpoints';
 
 type ReservationFormProps = {
   services: Service[];
@@ -11,81 +14,127 @@ export const ReservationForm = ({ services, selectedServiceId, onSubmitReservati
   const s = services.find(x => x.id === selectedServiceId);
   const [customerName, setCustomerName] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [availableSlots, setAvailableSlots] = useState<{startTime: string, endTime: string}[]>([]);
 
   const canSubmit = Boolean(s) && customerName && selectedDate;
 
-  //Funcion para convertir input date+time a Date
-  const handleDateChange = (dateStr: string, timeStr: string) => {
-    if (!dateStr) {
-      setSelectedDate(null);
-      return;
+  useEffect(() => {
+    if (s && selectedDate) {
+      // Formatear la fecha para la API
+      const dateStr = selectedDate.toISOString().split('T')[0];
+      api.getAvailableHoursByService(s.id, dateStr)
+        .then(slots => setAvailableSlots(slots))
+        .catch(err => {
+          console.error('Error fetching available slots:', err);
+          setAvailableSlots([]);
+        });
+    } else {
+      setAvailableSlots([]);
     }
+  }, [s, selectedDate]);
 
-    const date = new Date(dateStr);
-    if (timeStr) {
-      const [hours, minutes] = timeStr.split(':').map(Number);
-      date.setHours(hours, minutes);
-    }
-    setSelectedDate(date);
-  }
-
-  const handleTimeChange = (timeStr: string) => {
-    if (!selectedDate || !timeStr) return;
-
-    const newDate = new Date(selectedDate);
-    const [hours, minutes] = timeStr.split(':').map(Number);
-    newDate.setHours(hours, minutes);
-    setSelectedDate(newDate);
-  }
-
-  const dateInputValue = selectedDate ? selectedDate.toISOString().split('T')[0] : '';
-  const timeInputValue = selectedDate ?
-    selectedDate.toLocaleTimeString('es-CL', {
-      hour: '2-digit', minute: '2-digit', hour12: false
-    }) : '';
+  // No necesitamos variables adicionales ya que manejamos todo directamente con selectedDate
 
   return (
     <form
+      className="reservation-form"
       onSubmit={(e) => {
         e.preventDefault();
         if (!s) return;
-        onSubmitReservation?.({ serviceId: s.id, customerName, date: selectedDate });
+        if (!selectedDate) return;
+        onSubmitReservation?.({ id: 0, serviceId: s.id, customerName, date: selectedDate });
         setCustomerName(''); setSelectedDate(null);
       }}
     >
       <h2>Reservar</h2>
-      {!s ? <p style={{ color: '#a00' }}>Primero elige un servicio.</p>
-          : <p>Servicio: <strong>{s.name}</strong> ({s.durationMin} min — ${s.price})</p>}
+      {!s ? (
+        <p style={{ color: '#dc3545' }}>Primero elige un servicio.</p>
+      ) : (
+        <p>
+          Servicio: <strong>{s.name}</strong>{' '}
+          <span className="service-details">({s.durationMin} min — ${s.price})</span>
+        </p>
+      )}
 
       <label>
         Nombre:
         <input
+          type="text"
           value={customerName}
-          onChange={(e)=>setCustomerName(e.target.value)}
+          onChange={(e) => setCustomerName(e.target.value)}
+          placeholder="Ingresa tu nombre"
         />
-      </label><br/>
+      </label>
 
-      <label>
-        Fecha:
-        <input
-          type="date"
-          value={dateInputValue}
-          min={new Date().toISOString().split('T')[0]}
-          onChange={(e)=> handleDateChange(e.target.value, timeInputValue)}
+
+      <div className="calendar-section">
+        <h3>Fecha y Hora</h3>
+        <Calendar
+          onChange={(value) => {
+            if (value instanceof Date) {
+              const newDate = new Date(value);
+              if (selectedDate) {
+                // Mantener la hora seleccionada al cambiar la fecha
+                newDate.setHours(selectedDate.getHours(), selectedDate.getMinutes());
+              }
+              setSelectedDate(newDate);
+            }
+          }}
+          value={selectedDate}
+          minDate={new Date()}
+          locale="es-ES"
+          formatShortWeekday={(_locale, date) => {
+            const days = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'];
+            return days[date.getDay()];
+          }}
         />
-      </label><br/>
 
-      <label>
-        Hora:
-        <input
-          type="time"
-          value={timeInputValue}
-          onChange={(e)=>handleTimeChange(e.target.value)}
-          disabled={!selectedDate}
-        />
-      </label><br/>
+        <div className="time-slots">
+          <h4>Horarios Disponibles</h4>
+          {selectedDate ? (
+            availableSlots.length > 0 ? (
+              <div className="time-slots-grid">
+                {availableSlots.map((slot, index) => {
+                  const startDate = new Date(slot.startTime);
+                  // Ajustar la hora UTC a hora local
+                  const localStartDate = new Date(startDate.getTime() - startDate.getTimezoneOffset() * 60000);
+                  const time = localStartDate.toLocaleTimeString('es-CL', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    hour12: false 
+                  });
+                  
+                  const isSelected = selectedDate && 
+                    selectedDate.toISOString() === localStartDate.toISOString();
 
-      <button type="submit" disabled={!canSubmit}>Agendar</button>
+                  return (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => setSelectedDate(localStartDate)}
+                      className={`time-slot-button ${isSelected ? 'selected' : ''}`}
+                    >
+                      {time}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="no-slots-message">No hay horarios disponibles para esta fecha.</p>
+            )
+          ) : (
+            <p className="select-date-message">Selecciona una fecha para ver los horarios disponibles.</p>
+          )}
+        </div>
+      </div>
+
+      <button 
+        type="submit" 
+        className="submit-button" 
+        disabled={!canSubmit}
+      >
+        Agendar
+      </button>
     </form>
   );
 };
