@@ -4,11 +4,10 @@ interface ServicesListProps {
   title?: string;
   services: Service[];
   onSelectService?: (id: number) => void;
-  selectedId?: number;
 }
 
-export const ServicesList = ({ title = 'Servicios', services, onSelectService, selectedId }: ServicesListProps) => {
-  //const isSelected  = (id: number) => selectedId === id;
+export const ServicesList = ({ title = 'Servicios', services, onSelectService }: ServicesListProps) => {
+  
   return (
     <div>
       <h2>{title}</h2>
