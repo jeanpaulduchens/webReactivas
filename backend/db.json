@@ -1,31 +1,38 @@
 {
   "services": [
     {
-      "id": "1",
+      "id": 1,
       "name": "Corte",
       "durationMin": 30,
       "price": 10000
     },
     {
-      "id": "2",
+      "id": 2,
       "name": "Barba + Perfilado",
       "durationMin": 20,
       "price": 5000
     },
     {
-      "id": "3",
+      "id": 3,
       "name": "Corte + Barba",
       "durationMin": 45,
       "price": 12000
     },
     {
-      "id": "4",
+      "id": 4,
       "name": "Corte + Barba + Perfilado",
       "durationMin": 55,
       "price": 15000
     }
   ],
   "reservations": [
+    {
+      "id": 1,
+      "serviceId": 1,
+      "customerName": "Titanio Uranio",
+      "date": "2025-09-24T15:00:00.000Z",
+      "status": "pending"
+    }
   ],
   "users": [
     {
