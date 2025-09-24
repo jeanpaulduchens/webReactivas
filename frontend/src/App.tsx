@@ -25,12 +25,27 @@ function App() {
 
   const handleSubmitReservation = async (p: {id: number; serviceId: number; customerName: string; date: Date }) => {
     try {
-      // Convertir la fecha local a UTC antes de enviar al servidor
-      const utcDate = new Date(p.date.getTime() + p.date.getTimezoneOffset() * 60000);
-      const created: Reservation = await api.createReservation({ ...p, date: utcDate, status: 'pending' });
+      // 1. Obtener todas las reservas existentes
+      const existingReservations = await api.getAllReservations();
+      
+      // 2. Encontrar el ID máximo y sumar 1
+      const maxId = existingReservations.length > 0 
+        ? Math.max(...existingReservations.map(r => Number(r.id))) 
+        : 0;
+      const newId = maxId + 1;
+      
+      // 3. Crear la reserva con el nuevo ID
+      const created: Reservation = await api.createReservation({ 
+        ...p, 
+        id: newId, 
+        date: p.date, 
+        status: 'pending' 
+      });
+      
       alert(`Reserva #${created.id} creada para ${created.customerName}`);
       setSelectedServiceId(null);
-    } catch {
+    } catch (error) {
+      console.error('Error creating reservation:', error);
       alert('No se pudo crear la reserva. Intenta nuevamente.');
     }
   };

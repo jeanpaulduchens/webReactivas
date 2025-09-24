@@ -22,8 +22,14 @@ export const ReservationForm = ({ services, selectedServiceId, onSubmitReservati
     if (s && selectedDate) {
       // Formatear la fecha para la API
       const dateStr = selectedDate.toISOString().split('T')[0];
+      console.log('Fecha enviada al backend:', dateStr);
+      
       api.getAvailableHoursByService(s.id, dateStr)
-        .then(slots => setAvailableSlots(slots))
+        .then(slots => {
+          console.log('Slots recibidos del backend:', slots);
+          console.log('Primera slot parseada:', slots[0] ? new Date(slots[0].startTime) : 'No hay slots');
+          setAvailableSlots(slots);
+        })
         .catch(err => {
           console.error('Error fetching available slots:', err);
           setAvailableSlots([]);
@@ -96,22 +102,23 @@ export const ReservationForm = ({ services, selectedServiceId, onSubmitReservati
               <div className="time-slots-grid">
                 {availableSlots.map((slot, index) => {
                   const startDate = new Date(slot.startTime);
-                  // Ajustar la hora UTC a hora local
-                  const localStartDate = new Date(startDate.getTime() - startDate.getTimezoneOffset() * 60000);
-                  const time = localStartDate.toLocaleTimeString('es-CL', { 
+                  
+                  // Usar directamente toLocaleTimeString que maneja la zona horaria automáticamente
+                  const time = startDate.toLocaleTimeString('es-CL', { 
                     hour: '2-digit', 
                     minute: '2-digit', 
-                    hour12: false 
+                    hour12: false,
+                    timeZone: 'America/Santiago' // Especificar explícitamente
                   });
                   
                   const isSelected = selectedDate && 
-                    selectedDate.toISOString() === localStartDate.toISOString();
+                    selectedDate.getTime() === startDate.getTime(); // Comparar timestamps directamente
 
                   return (
                     <button
                       key={index}
                       type="button"
-                      onClick={() => setSelectedDate(localStartDate)}
+                      onClick={() => setSelectedDate(startDate)} // Usar startDate directamente
                       className={`time-slot-button ${isSelected ? 'selected' : ''}`}
                     >
                       {time}
