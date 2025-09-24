@@ -3,6 +3,7 @@ import api from '@api/endpoints';
 import type { Service, Reservation } from '@types/domain';
 import { ServicesList } from '@components/ServicesList';
 import { ReservationForm } from '@components/ReservationForm';
+import Typography from '@mui/material/Typography';
 
 function App() {
   const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
@@ -68,7 +69,9 @@ function App() {
   return (
     <>
       <div style={{ padding: 16 }}>
-        <h1>Barbería — Hito 1</h1>
+        <Typography variant="h5" component="h3" gutterBottom color="primary" fontWeight="bold">
+                  BarberBook
+                </Typography>
         <ServicesList
           services={services}
           onSelectService={handleSelectService}
