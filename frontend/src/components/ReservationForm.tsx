@@ -26,8 +26,6 @@ export const ReservationForm = ({ services, selectedServiceId, onSubmitReservati
       
       api.getAvailableHoursByService(s.id, dateStr)
         .then(slots => {
-          console.log('Slots recibidos del backend:', slots);
-          console.log('Primera slot parseada:', slots[0] ? new Date(slots[0].startTime) : 'No hay slots');
           setAvailableSlots(slots);
         })
         .catch(err => {
@@ -38,8 +36,6 @@ export const ReservationForm = ({ services, selectedServiceId, onSubmitReservati
       setAvailableSlots([]);
     }
   }, [s, selectedDate]);
-
-  // No necesitamos variables adicionales ya que manejamos todo directamente con selectedDate
 
   return (
     <form
@@ -108,7 +104,7 @@ export const ReservationForm = ({ services, selectedServiceId, onSubmitReservati
                     hour: '2-digit', 
                     minute: '2-digit', 
                     hour12: false,
-                    timeZone: 'America/Santiago' // Especificar explícitamente
+                    timeZone: 'America/Santiago'
                   });
                   
                   const isSelected = selectedDate && 

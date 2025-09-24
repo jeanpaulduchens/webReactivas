@@ -25,16 +25,14 @@ function App() {
 
   const handleSubmitReservation = async (p: {id: number; serviceId: number; customerName: string; date: Date }) => {
     try {
-      // 1. Obtener todas las reservas existentes
+
       const existingReservations = await api.getAllReservations();
       
-      // 2. Encontrar el ID máximo y sumar 1
       const maxId = existingReservations.length > 0 
         ? Math.max(...existingReservations.map(r => Number(r.id))) 
         : 0;
       const newId = maxId + 1;
       
-      // 3. Crear la reserva con el nuevo ID
       const created: Reservation = await api.createReservation({ 
         ...p, 
         id: newId, 
@@ -74,7 +72,6 @@ function App() {
         <ServicesList
           services={services}
           onSelectService={handleSelectService}
-          selectedId={undefined}
         />
       </div>
     </>
