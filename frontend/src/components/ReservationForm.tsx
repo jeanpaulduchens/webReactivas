@@ -1,3 +1,4 @@
+import '@css/App.css'
 import { useState, useEffect } from 'react';
 import type { Service } from '@types/domain';
 import Calendar from 'react-calendar';
