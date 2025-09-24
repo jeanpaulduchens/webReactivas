@@ -32,6 +32,9 @@ const getAvailableHoursByService = async (serviceId: number, date: string) => {
         // Obtener el servicio para saber su duración
         const service = await getService(serviceId);
         
+        // AGREGAR: Obtener todos los servicios para calcular duraciones de reservas existentes
+        const allServices = await getAllServices();
+        
         // Obtener las horas disponibles para ese día
         const availableHoursResponse = await axios.get(
             `${baseURL}/availableHours`
@@ -45,11 +48,18 @@ const getAvailableHoursByService = async (serviceId: number, date: string) => {
             return []; // No hay horarios disponibles para ese día
         }
 
-        // Obtener las reservas existentes para esa fecha
-        const reservationsResponse = await axios.get(
-            `${baseURL}/reservations?date=${date}&status=pending`
-        );
-        const reservations: Reservation[] = reservationsResponse.data;
+        // Obtener TODAS las reservas y filtrar por fecha correctamente
+        const reservationsResponse = await axios.get(`${baseURL}/reservations`);
+        const allReservations: Reservation[] = reservationsResponse.data;
+        
+        // Filtrar reservas para el día seleccionado
+        const dayReservations = allReservations.filter(reservation => {
+            const reservationDate = new Date(reservation.date);
+            return reservationDate.toISOString().split('T')[0] === date;
+        });
+
+        console.log('Reservas para el día:', dayReservations);
+        console.log('Fecha buscada:', date);
 
         // Generar slots de tiempo disponibles
         const slots = [];
@@ -79,11 +89,17 @@ const getAvailableHoursByService = async (serviceId: number, date: string) => {
             // Verificar si el slot termina después del fin del día
             if (slotEndTime > dayEnd) continue;
 
-            // Verificar si el slot está disponible (no hay reservas que se solapen)
-            const isSlotAvailable = !reservations.some(reservation => {
+            // CORRECCIÓN: Verificar conflictos con reservas existentes
+            const isSlotAvailable = !dayReservations.some(reservation => {
                 const reservationTime = new Date(reservation.date);
-                const reservationEndTime = new Date(reservationTime.getTime() + slotDuration * 60000);
+                
+                // CLAVE: Obtener la duración del servicio de la reserva existente usando allServices
+                const reservationService = allServices.find(s => s.id.toString() === reservation.serviceId.toString());
+                const reservationDuration = reservationService ? reservationService.durationMin : 30; // fallback a 30 min
+                
+                const reservationEndTime = new Date(reservationTime.getTime() + reservationDuration * 60000);
 
+                // Verificar si hay solapamiento entre el slot y la reserva existente
                 return (
                     (slotTime >= reservationTime && slotTime < reservationEndTime) ||
                     (slotEndTime > reservationTime && slotEndTime <= reservationEndTime) ||
