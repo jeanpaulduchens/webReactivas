@@ -1,35 +1,84 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react';
+import api from '@api/endpoints';
+import type { Service, Reservation } from '@types/domain';
+import { ServicesList } from '@components/ServicesList';
+import { ReservationForm } from '@components/ReservationForm';
+import Typography from '@mui/material/Typography';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
+
+  const [services, setServices] = useState<Service[]>([]);
+
+  useEffect(() => {
+    api.getAllServices()
+      .then(data => setServices(data))
+      .catch(err => console.error('Error fetching services:', err));
+  }, []);
+
+  const handleSelectService = (id: number) => {
+    setSelectedServiceId(id);
+  };
+
+  const handleBackToList = () => {
+    setSelectedServiceId(null);
+  };
+
+  const handleSubmitReservation = async (p: {id: number; serviceId: number; customerName: string; date: Date }) => {
+    try {
+
+      const existingReservations = await api.getAllReservations();
+      
+      const maxId = existingReservations.length > 0 
+        ? Math.max(...existingReservations.map(r => Number(r.id))) 
+        : 0;
+      const newId = maxId + 1;
+      
+      const created: Reservation = await api.createReservation({ 
+        ...p, 
+        id: newId, 
+        date: p.date, 
+        status: 'pending' 
+      });
+      
+      alert(`Reserva #${created.id} creada para ${created.customerName}`);
+      setSelectedServiceId(null);
+    } catch (error) {
+      console.error('Error creating reservation:', error);
+      alert('No se pudo crear la reserva. Intenta nuevamente.');
+    }
+  };
+
+  if (selectedServiceId !== null) {
+    const svcIndex = services.findIndex(s => s.id === selectedServiceId);
+
+    return (
+      <>
+        <div style={{ padding: 16 }}>
+          <button onClick={handleBackToList}>← Volver a la lista</button>
+          <ReservationForm
+            services={services}
+            selectedServiceId={services[svcIndex]?.id}
+            onSubmitReservation={handleSubmitReservation}
+          />
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <div style={{ padding: 16 }}>
+        <Typography variant="h5" component="h3" gutterBottom color="primary" fontWeight="bold">
+                  BarberBook
+                </Typography>
+        <ServicesList
+          services={services}
+          onSelectService={handleSelectService}
+        />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
