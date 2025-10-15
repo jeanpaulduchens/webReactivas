@@ -1,0 +1,61 @@
+/* Color y tokens base */
+:root{
+  --primary:#1e3a8a;
+  --primary-600:#1f4aa6;
+  --muted:#6b7280;
+  --bg:#f5f6fa;
+  --card:#fff;
+  --shadow:0 6px 18px rgba(16,24,40,.08);
+  --radius:14px;
+}
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+  background:var(--bg);
+  color:#111827;
+}
+.container{max-width:1150px;margin:0 auto;padding:24px}
+
+/* Layout con sidebar */
+.layout{display:grid;grid-template-columns:220px 1fr;gap:24px}
+
+/* Navbar simple */
+.navbar{height:60px;display:flex;align-items:center;gap:12px}
+.brand{font-weight:800;color:var(--primary)}
+
+/* Sidebar */
+.sidebar{width:200px;padding:16px 0;color:#6b7280}
+.sidebar a{display:block;text-decoration:none;color:inherit;padding:6px 0}
+
+/* Hero */
+.hero{
+  position:relative;border-radius:var(--radius);box-shadow:var(--shadow);
+  overflow:hidden;height:220px;margin-bottom:18px;
+  background:url('https://images.unsplash.com/photo-1582095133179-bfd08e2fc6b3?q=80&w=1800&auto=format&fit=crop') center/cover no-repeat;
+  display:grid;place-items:center;
+}
+.hero::after{
+  content:"";position:absolute;inset:0;background:rgba(15,23,42,.55)
+}
+.hero-content{position:relative;color:#fff;text-align:center;padding:18px}
+.hero-title{font-size:28px;font-weight:800;margin:0 0 8px}
+.hero-sub{font-size:14px;opacity:.95;max-width:760px;margin:0 auto}
+
+/* Sección */
+.section-title{font-size:18px;font-weight:800;margin:18px 0 12px}
+
+/* Grid de cards */
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+
+/* Card */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+.card-img{height:140px;width:100%;object-fit:cover}
+.card-body{padding:14px;display:grid;gap:8px}
+.card-title{font-weight:700}
+.card-desc{font-size:13px;color:var(--muted);min-height:48px}
+.card-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.card-actions{padding:12px 14px 16px}
+.btn{width:100%;border:0;border-radius:10px;height:42px;font-weight:700;background:var(--primary);color:#fff;cursor:pointer}
+.btn:hover{background:var(--primary-600)}
