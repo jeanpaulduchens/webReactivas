@@ -1,9 +1,8 @@
-export default function ServiceCard({ service }) {
-  const { name, description, durationMin, priceEUR, imageUrl } = service;
-
+export default function ServiceCard({ service, onReserve }) {
+  const { name, description, durationMin, priceEUR, imageUrl } = service || {};
   return (
     <article className="card">
-      <img className="card-img" src={imageUrl} alt={name}/>
+      <img className="card-img" src={imageUrl} alt={name} />
       <div className="card-body">
         <div className="card-title">{name}</div>
         <div className="card-desc">{description}</div>
@@ -13,7 +12,9 @@ export default function ServiceCard({ service }) {
         </div>
       </div>
       <div className="card-actions">
-        <button className="btn">Reservar Ahora</button>
+        <button className="btn" onClick={() => onReserve && onReserve(service)}>
+          Reservar Ahora
+        </button>
       </div>
     </article>
   );

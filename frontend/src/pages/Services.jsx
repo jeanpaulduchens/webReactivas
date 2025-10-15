@@ -46,12 +46,17 @@ const MOCK_SERVICES = [
   }
 ];
 
-export default function Services() {
+export default function Services({ onGoReservas }) {
+  function handleReserve(_svc) {
+    // por ahora solo navegamos a la vista de reservas
+    if (onGoReservas) onGoReservas();
+  }
+
   return (
     <>
       <Hero />
       <h2 className="section-title">Nuestros Servicios</h2>
-      <ServiceGrid services={MOCK_SERVICES} />
+      <ServiceGrid services={MOCK_SERVICES} onReserve={handleReserve} />
     </>
   );
 }
