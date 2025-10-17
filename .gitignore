@@ -26,3 +26,8 @@ dist-ssr
 
 .node-version
 package-lock.json
+
+# Env files
+*.env
+*.env.local
+.env.*
