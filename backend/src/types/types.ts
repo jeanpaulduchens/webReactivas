@@ -1,1 +1,5 @@
-export type ReservationStatus = 'pending' | 'confirmed' | 'cancelled';
+export enum ReservationStatus {
+  PENDING = 'pending',
+  CONFIRMED = 'confirmed',
+  CANCELLED = 'cancelled'
+}
