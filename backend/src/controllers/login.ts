@@ -30,7 +30,7 @@ router.post("/", async (request: Request, response: Response) => {
   const userForToken = {
     username: user.username,
     id: user._id,
-    role: user.role, // ⬅️ Agregamos el role
+    role: user.role,
     csrf: crypto.randomUUID(),
   };
 
@@ -48,7 +48,7 @@ router.post("/", async (request: Request, response: Response) => {
     username: user.username, 
     name: user.name,
     email: user.email,
-    role: user.role, // ⬅️ Para localStorage en frontend
+    role: user.role,
     id: user.id
   });
 });
