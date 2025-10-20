@@ -49,7 +49,8 @@ const userSchema = new mongoose.Schema<UserData>({
       ref: "Reservation",
     },
   ],
-  timestamps: true // Agrega createdAt y updatedAt automáticamente
+    }, {
+    timestamps: true
 });
 
 userSchema.set("toJSON", {

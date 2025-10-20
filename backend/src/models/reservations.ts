@@ -37,6 +37,7 @@ const reservationSchema = new mongoose.Schema<ReservationData>({
     default: ReservationStatus.PENDING, 
     required: true 
   },
+  }, {
   timestamps: true // Agrega createdAt y updatedAt automáticamente
 });
 
