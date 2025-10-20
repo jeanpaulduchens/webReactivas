@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "NODE_ENV=production node dist/index.js",
-    "dev": "NODE_ENV=development ts-node-dev src/index.ts",
+    "dev": "NODE_ENV=development ts-node-dev --require tsconfig-paths/register src/index.ts",
     "test": "NODE_ENV=test tsx --test tests/**/*.test.ts",
     "build:ui": "rm -rf dist && cd ../frontend && npm run build && cp -r dist ../backend"
   },

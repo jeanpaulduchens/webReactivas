@@ -1,0 +1,35 @@
+import express, { NextFunction, Request, Response } from "express";
+import logger from "@utils/logger";
+import config from "@utils/config";
+import mongoose from "mongoose";
+import middleware from "@utils/middleware";
+import servicesRouter from "./controllers/services";
+import { seedServices } from "@utils/seedServices";
+
+const app = express();
+
+mongoose.set("strictQuery", false);
+
+if (config.MONGODB_URI) {
+  mongoose.connect(config.MONGODB_URI, { dbName: config.MONGODB_DBNAME })
+  .then(async () => {
+    await seedServices();
+  })
+  .catch((error) => {
+    logger.error("Error connecting to MongoDB:", error.message);
+  });
+}
+
+
+
+app.use(express.static("dist"));
+app.use(express.json());
+app.use(middleware.requestLogger);
+
+// Definimos nuestras rutas aquí
+app.use("/api/services", servicesRouter)
+
+app.use(middleware.unknownEndpoint);
+app.use(middleware.errorHandler);
+
+export default app;
