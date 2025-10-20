@@ -1,7 +1,9 @@
+//TODO CONECTAR A BACKEND
 import Hero from "../components/Hero";
 import ServiceGrid from "../components/ServiceGrid";
+import type { Service } from "../types";
 
-const MOCK_SERVICES = [
+const MOCK_SERVICES: Service[] = [
   {
     name: "Corte de Cabello Clásico",
     description: "Un corte de estilo tradicional y elegante, adaptado a tu estilo personal.",
@@ -46,8 +48,12 @@ const MOCK_SERVICES = [
   }
 ];
 
-export default function Services({ onGoReservas }) {
-  function handleReserve(_svc) {
+interface ServicesProps {
+  onGoReservas?: () => void;
+}
+
+export default function Services({ onGoReservas }: ServicesProps) {
+  function handleReserve(_svc: Service) {
     // por ahora solo navegamos a la vista de reservas
     if (onGoReservas) onGoReservas();
   }

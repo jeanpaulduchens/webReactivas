@@ -1,11 +1,24 @@
+//TODO CONECTAR A BACKEND
 import { useState } from "react";
 
-const MOCK = [
+interface Booking {
+  dateISO: string;
+  time: string;
+  clientName: string;
+  serviceName: string;
+  status: string;
+}
+
+const MOCK: Booking[] = [
   { dateISO:"2025-09-23", time:"10:00", clientName:"Juan Pérez", serviceName:"Corte de pelo y barba", status:"confirmada" },
   { dateISO:"2025-09-23", time:"14:00", clientName:"Pedro Sánchez", serviceName:"Afeitado clásico", status:"confirmada" },
 ];
 
-export default function MyBookings({ onBack }) {
+interface MyBookingsProps {
+  onBack: () => void;
+}
+
+export default function MyBookings({ onBack }: MyBookingsProps) {
   const [selected, setSelected] = useState("2025-09-23");
   const list = MOCK.filter(b => b.dateISO === selected);
 
@@ -64,7 +77,7 @@ export default function MyBookings({ onBack }) {
                       <td style={{color:"#16a34a"}}>{b.status}</td>
                     </tr>
                   ))}
-                  {!list.length && <tr><td colSpan="4" className="help">No hay citas este día.</td></tr>}
+                  {!list.length && <tr><td colSpan={4} className="help">No hay citas este día.</td></tr>}
                 </tbody>
               </table>
 

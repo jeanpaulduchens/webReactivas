@@ -1,32 +1,42 @@
+//TODO CONECTAR A BACKEND
 import { useMemo, useState } from "react";
 
-const BARBERS = [
+interface Barber {
+  _id: string;
+  name: string;
+}
+
+const BARBERS: Barber[] = [
   { _id: "b1", name: "Electrónico" },
   { _id: "b2", name: "Clásico" },
   { _id: "b3", name: "Moderno" },
 ];
-const HOURS = ["09:00","09:30","10:00","10:30","11:00","11:30","13:00","13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30"];
+const HOURS: string[] = ["09:00","09:30","10:00","10:30","11:00","11:30","13:00","13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30"];
 
-function makeMonth(y, m){
+function makeMonth(y: number, m: number): Date[] {
   const first = new Date(y,m,1);
   const start = new Date(first);
   start.setDate(first.getDate() - ((first.getDay()+6)%7)); 
   return Array.from({length:42},(_,i)=>{ const d=new Date(start); d.setDate(start.getDate()+i); return d;});
 }
 
-export default function Reservations({ onBack }) {
+interface ReservationsProps {
+  onBack: () => void;
+}
+
+export default function Reservations({ onBack }: ReservationsProps) {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
   const days = useMemo(()=>makeMonth(year,month),[year,month]);
 
-  const [selectedDate, setSelectedDate] = useState(today);
-  const [slot, setSlot] = useState(null);
+  const [selectedDate, setSelectedDate] = useState<Date>(today);
+  const [slot, setSlot] = useState<string | null>(null);
 
-  const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [barber, setBarber] = useState(BARBERS[0]._id);
+  const [fullName, setFullName] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [barber, setBarber] = useState<string>(BARBERS[0]._id);
 
   const canConfirm = fullName && email && selectedDate && slot;
 

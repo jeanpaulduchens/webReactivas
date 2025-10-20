@@ -1,3 +1,4 @@
+//TODO CONECTAR A BACKEND
 import { useState } from "react";
 import Services from "./pages/Services";
 import Reservations from "./pages/Reserve";
@@ -5,8 +6,10 @@ import MyBookings from "./pages/MyReserve";
 import Login from "./pages/Login";
 import './style.css'
 
+type View = "services" | "reservas" | "mis-reservas" | "login";
+
 function App() {
-  const [view, setView] = useState("services"); // "services" | "reservas" | "mis-reservas" | "login"
+  const [view, setView] = useState<View>("services");
 
   return (
     <div className="container">

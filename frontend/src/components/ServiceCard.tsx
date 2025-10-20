@@ -1,5 +1,12 @@
-export default function ServiceCard({ service, onReserve }) {
-  const { name, description, durationMin, priceEUR, imageUrl } = service || {};
+import type { Service } from '../types';
+
+interface ServiceCardProps {
+  service: Service;
+  onReserve?: (service: Service) => void;
+}
+
+export default function ServiceCard({ service, onReserve }: ServiceCardProps) {
+  const { name, description, durationMin, priceEUR, imageUrl } = service;
   return (
     <article className="card">
       <img className="card-img" src={imageUrl} alt={name} />
