@@ -3,9 +3,15 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.ts",
+  "_moduleAliases": {
+    "@controllers": "dist/src/controllers",
+    "@models": "dist/src/models",
+    "@custom-types": "dist/src/types",
+    "@utils": "dist/src/utils"
+  },
   "scripts": {
     "build": "tsc",
-    "start": "NODE_ENV=production node dist/index.js",
+    "start": "NODE_ENV=production node dist/src/index.js",
     "dev": "NODE_ENV=development ts-node-dev --require tsconfig-paths/register src/index.ts",
     "test": "NODE_ENV=test tsx --test tests/**/*.test.ts",
     "build:ui": "rm -rf dist && cd ../frontend && npm run build && cp -r dist ../backend"
@@ -33,6 +39,7 @@
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+    "module-alias": "^2.2.3",
     "mongoose": "^8.18.1",
     "tsx": "^4.20.5"
   }
