@@ -5,6 +5,11 @@ import { Error } from "mongoose";
 
 const router = express.Router();
 
+// Eliminar todos los servicios
+router.delete("/", async (_req, res) => {
+  await Service.deleteMany({});
+  res.status(204).end();
+});
 router.get("/", async (_req, res) => {
   const services: Service[] = await Service.find({});
   res.json(services);
