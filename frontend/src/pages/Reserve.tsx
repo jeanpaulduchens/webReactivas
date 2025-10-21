@@ -1,5 +1,8 @@
 //TODO CONECTAR A BACKEND
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { createReservation, getReservationsByDateAndService } from "../api/reservations";
+import { getAllServices } from "../api/services";
+import type { Service } from "../types";
 
 interface Barber {
   _id: string;
@@ -24,11 +27,12 @@ interface ReservationsProps {
   onBack: () => void;
 }
 
+
 export default function Reservations({ onBack }: ReservationsProps) {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
-  const days = useMemo(()=>makeMonth(year,month),[year,month]);
+  const days = useMemo(() => makeMonth(year, month), [year, month]);
 
   const [selectedDate, setSelectedDate] = useState<Date>(today);
   const [slot, setSlot] = useState<string | null>(null);
@@ -36,16 +40,53 @@ export default function Reservations({ onBack }: ReservationsProps) {
   const [fullName, setFullName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [email, setEmail] = useState<string>("");
-  const [barber, setBarber] = useState<string>(BARBERS[0]._id);
+  const [services, setServices] = useState<Service[]>([]);
+  const [serviceId, setServiceId] = useState<string>("");
+  const [reservedSlots, setReservedSlots] = useState<string[]>([]);
 
-  const canConfirm = fullName && email && selectedDate && slot;
+  useEffect(() => {
+    getAllServices().then(data => {
+      setServices(data);
+      if (data.length > 0) setServiceId(data[0].id || "");
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!serviceId || !selectedDate) return;
+    const dateStr = selectedDate.toISOString().slice(0, 10);
+    getReservationsByDateAndService(dateStr, serviceId).then(reservas => {
+      setReservedSlots(reservas.map((r: any) => r.time));
+    });
+  }, [serviceId, selectedDate]);
+
+  const canConfirm = fullName && email && selectedDate && slot && serviceId;
+
+  async function handleConfirm() {
+    if (!canConfirm) return;
+    const reservation = {
+      fullName,
+      email,
+      phone,
+      serviceId,
+      date: selectedDate.toISOString().slice(0,10),
+      time: slot || "",
+      status: "pending"
+    };
+    try {
+      await createReservation(reservation);
+      alert("Reserva creada exitosamente");
+      // Puedes limpiar el formulario o navegar a otra vista aquí
+    } catch (e) {
+      alert("Error al crear la reserva");
+    }
+  }
 
   function prev(){ const d=new Date(year,month-1,1); setYear(d.getFullYear()); setMonth(d.getMonth()); }
   function next(){ const d=new Date(year,month+1,1); setYear(d.getFullYear()); setMonth(d.getMonth()); }
 
   return (
     <div>
-      <h2 className="section-title">Reservas /reservas</h2>
+      <h2 className="section-title">Reservas</h2>
 
       <div className="panel pad" style={{maxWidth:980}}>
         {/* Datos del cliente */}
@@ -56,7 +97,7 @@ export default function Reservations({ onBack }: ReservationsProps) {
           </div>
           <div>
             <label className="label">Número de Teléfono</label>
-            <input className="input" placeholder="+34 123 456 789" value={phone} onChange={e=>setPhone(e.target.value)} />
+            <input className="input" placeholder="+56 9 1234 5678" value={phone} onChange={e=>setPhone(e.target.value)} />
           </div>
           <div className="col-span-2">
             <label className="label">Correo Electrónico</label>
@@ -64,9 +105,9 @@ export default function Reservations({ onBack }: ReservationsProps) {
           </div>
         </div>
 
-        <h3 style={{fontWeight:800, fontSize:22, margin:"18px 0 8px"}}>Seleccionar Barbero</h3>
-        <select className="select" value={barber} onChange={e=>setBarber(e.target.value)}>
-          {BARBERS.map(b=> <option key={b._id} value={b._id}>{b.name}</option>)}
+        <h3 style={{fontWeight:800, fontSize:22, margin:"18px 0 8px"}}>Seleccionar Servicio</h3>
+        <select className="select" value={serviceId} onChange={e=>setServiceId(e.target.value)}>
+          {services.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select>
 
         <h3 style={{fontWeight:800, fontSize:22, margin:"18px 0 8px"}}>Fecha y Hora</h3>
@@ -102,15 +143,23 @@ export default function Reservations({ onBack }: ReservationsProps) {
 
           {/* Slots */}
           <div className="slots">
-            {HOURS.map(h=>(
-              <button key={h} className={`slot ${slot===h?"active":""}`} onClick={()=>setSlot(h)}>{h}</button>
+            {HOURS.map(h => (
+              <button
+                key={h}
+                className={`slot ${slot===h?"active":""}`}
+                onClick={()=>setSlot(h)}
+                disabled={reservedSlots.includes(h)}
+                style={reservedSlots.includes(h) ? { opacity: 0.5, cursor: "not-allowed" } : {}}
+              >
+                {h}
+              </button>
             ))}
           </div>
         </div>
 
         <div style={{display:"flex",gap:12,marginTop:18}}>
           <button className="btn" onClick={onBack}>← Volver</button>
-          <button className="btn primary" disabled={!canConfirm}>✓ Confirmar Reserva</button>
+          <button className="btn primary" disabled={!canConfirm} onClick={handleConfirm}>✓ Confirmar Reserva</button>
         </div>
       </div>
     </div>
