@@ -251,6 +251,7 @@ curl http://localhost:3001/api/reservations \
 - `npm run build` - Compila el código TypeScript a JavaScript
 - `npm start` - Inicia el servidor en modo producción
 - `npm test` - Ejecuta los tests
+- `npm run build:ui` - Buildea el frontend y lo deja en `dist`
 
 ### Frontend
 
