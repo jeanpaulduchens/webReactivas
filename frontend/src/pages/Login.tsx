@@ -36,7 +36,7 @@ export default function Login({ onBack }: LoginProps) {
 
       <div className="login-wrap">
         <div className="login-card">
-          <div style={{textAlign:"center", fontWeight:800, fontSize:22, color:"#1e3a8a"}}>BarberConnect</div>
+          <div className="login-brand">BarberConnect</div>
           <div className="login-title">Iniciar Sesión</div>
 
           <form onSubmit={handleLogin}>
@@ -49,8 +49,8 @@ export default function Login({ onBack }: LoginProps) {
               required
             />
 
-            <label className="label" style={{marginTop:12}}>Contraseña</label>
-            <div style={{display:"grid", gridTemplateColumns:"1fr auto", gap:8}}>
+            <label className="label label-spacing">Contraseña</label>
+            <div className="login-password-grid">
               <input 
                 className="input" 
                 type={showPassword ? "text" : "password"} 
@@ -68,52 +68,37 @@ export default function Login({ onBack }: LoginProps) {
               </button>
             </div>
 
-            <label style={{display:"flex", gap:8, alignItems:"center", margin:"10px 0 0"}}>
+            <label className="login-remember">
               <input type="checkbox" /> Recordarme
             </label>
 
             {error && (
-              <div style={{
-                color: "#dc2626",
-                backgroundColor: "#fee2e2",
-                padding: "8px 12px",
-                borderRadius: "6px",
-                marginTop: "12px",
-                fontSize: "14px"
-              }}>
+              <div className="login-error">
                 {error}
               </div>
             )}
 
             {success && (
-              <div style={{
-                color: "#16a34a",
-                backgroundColor: "#dcfce7",
-                padding: "8px 12px",
-                borderRadius: "6px",
-                marginTop: "12px",
-                fontSize: "14px"
-              }}>
+              <div className="login-success">
                 ¡Login exitoso!
               </div>
             )}
 
             <button 
               type="submit"
-              className="btn primary block" 
-              style={{marginTop:12}}
+              className="btn primary block login-submit" 
               disabled={loading}
             >
               {loading ? "Iniciando..." : "Iniciar Sesión"}
             </button>
           </form>
 
-          <p className="help" style={{textAlign:"center", marginTop:12}}>
+          <p className="help login-help">
             ¿Olvidaste tu contraseña? <a href="#!">Restablecer aquí</a><br/>
             ¿No tienes una cuenta? <a href="#!">Regístrate</a>
           </p>
 
-          <button className="btn" onClick={onBack} style={{marginTop:8}}>← Volver</button>
+          <button className="btn login-back" onClick={onBack}>← Volver</button>
         </div>
       </div>
     </div>
