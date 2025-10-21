@@ -3,7 +3,9 @@ import mongoose from "mongoose";
 
 interface Service {
   id: string;
-  name: ServiceType;
+  name: string;
+  type: ServiceType;
+  description?: string;
   durationMin: number;
   price: number;
 }
@@ -12,6 +14,14 @@ const serviceSchema = new mongoose.Schema<Service>({
   name: {
     type: String,
     required: true
+  },
+  type: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String,
+    required: false
   },
   durationMin: {
     type: Number,

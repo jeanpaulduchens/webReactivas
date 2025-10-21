@@ -3,10 +3,10 @@ import { ReservationStatus } from "./enums";
 export interface Service {
   id?: string;
   name: string;
+  type: string;
   description: string;
   durationMin: number;
-  priceEUR: number;
-  imageUrl: string;
+  price: number;
 }
 
 export interface Reservation {

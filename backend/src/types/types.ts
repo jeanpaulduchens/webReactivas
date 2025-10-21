@@ -9,5 +9,4 @@ export enum ServiceType {
   BEARDEYERBROW = 'beardeyebrow',
   HAIRBEARD = 'hairbeard',
   FULLSERVICE = 'full_service'
-
 }
