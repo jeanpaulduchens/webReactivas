@@ -33,4 +33,4 @@ const logout = () => {
     });
 };
 
-export default { login, restoreLogin, logout };
+export { login, restoreLogin, logout };
