@@ -10,7 +10,6 @@ export async function createReservation(reservation: {
   fullName: string;
   email: string;
   phone: string;
-  barber: string;
   serviceId: string;
   date: string;
   time: string;

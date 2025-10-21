@@ -1,19 +1,8 @@
-//TODO CONECTAR A BACKEND
 import { useMemo, useState, useEffect } from "react";
 import { createReservation, getReservationsByDateAndService } from "../api/reservations";
 import { getAllServices } from "../api/services";
 import type { Service } from "../types";
 
-interface Barber {
-  _id: string;
-  name: string;
-}
-
-const BARBERS: Barber[] = [
-  { _id: "b1", name: "Electrónico" },
-  { _id: "b2", name: "Clásico" },
-  { _id: "b3", name: "Moderno" },
-];
 const HOURS: string[] = ["09:00","09:30","10:00","10:30","11:00","11:30","13:00","13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30"];
 
 function makeMonth(y: number, m: number): Date[] {
@@ -75,7 +64,6 @@ export default function Reservations({ onBack }: ReservationsProps) {
     try {
       await createReservation(reservation);
       alert("Reserva creada exitosamente");
-      // Puedes limpiar el formulario o navegar a otra vista aquí
     } catch (e) {
       alert("Error al crear la reserva");
     }
@@ -88,7 +76,7 @@ export default function Reservations({ onBack }: ReservationsProps) {
     <div>
       <h2 className="section-title">Reservas</h2>
 
-      <div className="panel pad" style={{maxWidth:980}}>
+      <div className="panel pad reserve-container">
         {/* Datos del cliente */}
         <div className="form-grid">
           <div>
@@ -105,12 +93,12 @@ export default function Reservations({ onBack }: ReservationsProps) {
           </div>
         </div>
 
-        <h3 style={{fontWeight:800, fontSize:22, margin:"18px 0 8px"}}>Seleccionar Servicio</h3>
+        <h3 className="form-heading">Seleccionar Servicio</h3>
         <select className="select" value={serviceId} onChange={e=>setServiceId(e.target.value)}>
           {services.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select>
 
-        <h3 style={{fontWeight:800, fontSize:22, margin:"18px 0 8px"}}>Fecha y Hora</h3>
+        <h3 className="form-heading">Fecha y Hora</h3>
         <div className="two-col">
           {/* Calendar */}
           <div>
@@ -120,7 +108,7 @@ export default function Reservations({ onBack }: ReservationsProps) {
                 <strong>{new Date(year,month).toLocaleString("es", { month:"long", year:"numeric" })}</strong>
                 <button className="cal-nav" onClick={next}>›</button>
               </div>
-              <div className="cal-grid" style={{marginBottom:6, color:"#9ca3af"}}>
+              <div className="cal-grid cal-grid-days">
                 {["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=><div key={d} className="cal-cell">{d}</div>)}
               </div>
               <div className="cal-grid">
@@ -146,10 +134,9 @@ export default function Reservations({ onBack }: ReservationsProps) {
             {HOURS.map(h => (
               <button
                 key={h}
-                className={`slot ${slot===h?"active":""}`}
+                className={`slot ${slot===h?"active":""} ${reservedSlots.includes(h)?"slot:disabled":""}`}
                 onClick={()=>setSlot(h)}
                 disabled={reservedSlots.includes(h)}
-                style={reservedSlots.includes(h) ? { opacity: 0.5, cursor: "not-allowed" } : {}}
               >
                 {h}
               </button>
@@ -157,7 +144,7 @@ export default function Reservations({ onBack }: ReservationsProps) {
           </div>
         </div>
 
-        <div style={{display:"flex",gap:12,marginTop:18}}>
+        <div className="actions-group">
           <button className="btn" onClick={onBack}>← Volver</button>
           <button className="btn primary" disabled={!canConfirm} onClick={handleConfirm}>✓ Confirmar Reserva</button>
         </div>
