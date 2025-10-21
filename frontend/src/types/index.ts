@@ -23,6 +23,7 @@ export interface User {
   username: string;
   email: string;
   name: string;
+  role?: 'cliente' | 'barbero';
 }
 
 export interface LoginCredentials {
@@ -33,4 +34,30 @@ export interface LoginCredentials {
 export interface AuthResponse {
   token: string;
   user: User;
+}
+
+// Interfaces para la vista de reservas del barbero
+export interface BarberReservationClient {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+}
+
+export interface BarberReservationService {
+  id: string;
+  name: string;
+  type: string;
+  description: string;
+  price: number;
+  durationMin: number;
+}
+
+export interface BarberReservation {
+  id: string;
+  date: string;
+  time: string;
+  status: ReservationStatus;
+  client: BarberReservationClient;
+  service: BarberReservationService;
 }

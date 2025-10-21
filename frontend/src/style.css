@@ -104,6 +104,50 @@ body{
 .sidebar-vertical a{ display:block; padding:10px 12px; border-radius:8px; color:#111827; text-decoration:none; }
 .sidebar-vertical a.active{ background:#eef2ff; color:#1e3a8a; font-weight:700; }
 
+/* Mejoras para el calendario */
+.cal-grid{ 
+  display:grid; 
+  grid-template-columns:repeat(7,1fr); 
+  gap:8px; 
+  text-align:center;
+}
+.cal-cell{ 
+  width:100%; 
+  aspect-ratio: 1;
+  display:grid; 
+  place-items:center; 
+  border-radius:8px; 
+  border:1px solid transparent;
+  background:#fff;
+  color:#374151;
+  cursor:pointer;
+  font-size:14px;
+  transition: all 0.2s;
+}
+.cal-cell:hover{ 
+  border-color:#c7d2fe; 
+  background:#f5f7ff;
+}
+.cal-cell.active{ 
+  background:#1e3a8a; 
+  color:#fff;
+  font-weight:700;
+}
+.cal-nav{ 
+  border:1px solid #e5e7eb; 
+  background:#fff; 
+  width:36px; 
+  height:36px; 
+  border-radius:8px;
+  cursor:pointer;
+  font-size:18px;
+  transition: all 0.2s;
+}
+.cal-nav:hover{
+  background:#f9fafb;
+  border-color:#c7d2fe;
+}
+
 /* Login */
 .login-wrap{
   min-height:70vh; display:grid; place-items:center;
@@ -137,3 +181,49 @@ body{
 .login-back{ margin-top:8px; }
 .label-spacing{ margin-top:12px; }
 .help{ color:#6b7280; font-size:12px; }
+
+/* Mis Reservas - MyReserve.tsx */
+.layout-with-sidebar{ display:grid; grid-template-columns:220px 1fr; gap:24px; }
+.sidebar a.active{ font-weight:700; }
+.page-title{ font-weight:800; font-size:26px; margin-top:0; }
+.section-subtitle{ font-weight:800; font-size:20px; margin-top:0; }
+.description-text{ margin-top:0; margin-bottom:16px; color:#6b7280; font-size:14px; }
+.loading-message{ text-align:center; padding:24px; color:#6b7280; }
+.error-box{ 
+  padding:12px; 
+  background:#fee2e2; 
+  border:1px solid #fca5a5; 
+  border-radius:8px;
+  color:#dc2626;
+  margin-bottom:16px;
+}
+
+/* Tabla de reservas */
+.reservations-table{ width:100%; border-collapse:collapse; }
+.reservations-table thead tr{ text-align:left; color:#6b7280; font-size:12px; font-weight:700; }
+.reservations-table th{ padding-bottom:12px; }
+.reservations-table tbody tr{ border-top:1px solid #e5e7eb; }
+.reservations-table td{ padding:12px 0; font-size:14px; }
+.client-name{ font-weight:600; }
+.client-info{ font-size:12px; color:#6b7280; }
+.service-info{ font-size:12px; color:#6b7280; }
+.status-badge{ 
+  color:#16a34a; 
+  font-size:13px;
+  font-weight:600;
+  text-transform:capitalize;
+}
+.empty-message{ 
+  padding:24px; 
+  text-align:center; 
+  color:#6b7280;
+  font-size:14px;
+}
+.actions-row{ margin-top:24px; }
+
+/* Reserve.tsx */
+.reserve-container{ max-width:980px; }
+.form-heading{ font-weight:800; font-size:22px; margin:18px 0 8px; }
+.actions-group{ display:flex; gap:12px; margin-top:18px; }
+.slot:disabled{ opacity:0.5; cursor:not-allowed; }
+.cal-grid-days{ margin-bottom:6px; color:#9ca3af; }
