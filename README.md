@@ -107,6 +107,16 @@ npm run dev
 
 El frontend estará disponible en `http://localhost:5173` (o el puerto que indique Vite)
 
+## 🚧 Build
+
+```bash
+cd backend
+npm run build:ui
+npm run build
+npm start
+```
+
+
 ## 📡 API Endpoints
 
 ### Usuarios
