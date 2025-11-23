@@ -146,4 +146,65 @@ router.post("/", async (req, res) => {
   }
 });
 
+// Actualizar una reserva (requiere autenticación)
+router.put("/:id", withUser, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { serviceId, date, time, status } = req.body;
+    const userId = req.userId;
+
+    // Buscar la reserva
+    const reservation = await Reservation.findById(id);
+    if (!reservation) {
+      return res.status(404).json({ error: "Reserva no encontrada" });
+    }
+
+    // Verificar que el usuario es el dueño de la reserva
+    if (reservation.user.toString() !== userId) {
+      return res.status(403).json({ error: "No tienes permiso para editar esta reserva" });
+    }
+
+    // Actualizar campos si se proporcionan
+    if (serviceId) {
+      const service = await Service.findById(serviceId);
+      if (!service) {
+        return res.status(400).json({ error: "Servicio no encontrado" });
+      }
+      reservation.service = service._id;
+    }
+    if (date) reservation.date = date;
+    if (time) reservation.time = time;
+    if (status) reservation.status = status;
+
+    const updatedReservation = await reservation.save();
+    res.json(updatedReservation);
+  } catch (error) {
+    res.status(400).json({ error: error });
+  }
+});
+
+// Eliminar una reserva (requiere autenticación)
+router.delete("/:id", withUser, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.userId;
+
+    // Buscar la reserva
+    const reservation = await Reservation.findById(id);
+    if (!reservation) {
+      return res.status(404).json({ error: "Reserva no encontrada" });
+    }
+
+    // Verificar que el usuario es el dueño de la reserva
+    if (reservation.user.toString() !== userId) {
+      return res.status(403).json({ error: "No tienes permiso para eliminar esta reserva" });
+    }
+
+    await Reservation.findByIdAndDelete(id);
+    res.status(204).send();
+  } catch (error) {
+    res.status(400).json({ error: error });
+  }
+});
+
 export default router;
