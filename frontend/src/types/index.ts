@@ -61,3 +61,12 @@ export interface BarberReservation {
   client: BarberReservationClient;
   service: BarberReservationService;
 }
+
+// Interface para las reservas de los clientes (mis reservas)
+export interface ClientReservation {
+  id: string;
+  date: string;
+  time: string;
+  status: ReservationStatus;
+  service: BarberReservationService;
+}

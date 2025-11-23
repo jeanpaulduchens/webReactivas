@@ -77,6 +77,41 @@ router.get("/confirmed-by-day", withUser, requireRole('barbero'), async (req, re
   }
 });
 
+// GET /api/reservations/my-reservations
+// Endpoint para que los clientes vean sus propias reservas
+router.get("/my-reservations", withUser, async (req, res) => {
+  try {
+    const userId = req.userId; // ID del usuario autenticado
+
+    // Buscar todas las reservas del usuario
+    const reservations = await Reservation.find({ user: userId })
+      .populate('service', 'name type description price durationMin')
+      .sort({ date: -1, time: -1 }); // Ordenar por fecha y hora (más recientes primero)
+
+    // Formatear respuesta para el frontend
+    const formattedReservations = reservations.map((reservation: any) => ({
+      id: reservation.id,
+      date: reservation.date,
+      time: reservation.time,
+      status: reservation.status,
+      service: {
+        id: reservation.service._id,
+        name: reservation.service.name,
+        type: reservation.service.type,
+        description: reservation.service.description,
+        price: reservation.service.price,
+        durationMin: reservation.service.durationMin
+      }
+    }));
+
+    res.json(formattedReservations);
+  } catch (error) {
+    console.error("Error obteniendo mis reservas:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+
 // Crear una nueva reserva
 router.post("/", async (req, res) => {
   try {
