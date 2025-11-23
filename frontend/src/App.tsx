@@ -8,7 +8,6 @@ import Register from './pages/Register';
 import AdminUsers from './pages/AdminUsers';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
-import './style.css';
 
 function App() {
   return (
