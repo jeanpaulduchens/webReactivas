@@ -112,16 +112,14 @@ router.get("/my-reservations", withUser, async (req, res) => {
 });
 
 
-// Crear una nueva reserva
-router.post("/", async (req, res) => {
+// Crear una nueva reserva (requiere autenticación)
+router.post("/", withUser, async (req, res) => {
   try {
-    const { fullName, email, phone, barber, serviceId, date, time, status } = req.body;
+    const { serviceId, date, time, status } = req.body;
+    const userId = req.userId; // ID del usuario autenticado
 
-    // Buscar o crear usuario
-    let user = await User.findOne({ email });
-    if (!user) {
-      user = new User({ name: fullName, email, phone });
-      await user.save();
+    if (!userId) {
+      return res.status(401).json({ error: "Usuario no autenticado" });
     }
 
     // Buscar servicio
@@ -130,16 +128,21 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "Servicio no encontrado" });
     }
 
-    // Crear reserva
+    // Crear reserva con el usuario autenticado
     const newReservation = new Reservation({
-      user: user._id,
+      user: userId,
       service: service._id,
       date,
       time,
-      status: status || "pending",
-      barber
+      status: status || "pending"
     });
     const savedReservation = await newReservation.save();
+    
+    // Actualizar el array de reservations del usuario
+    await User.findByIdAndUpdate(userId, {
+      $push: { reservations: savedReservation._id }
+    });
+    
     res.status(201).json(savedReservation);
   } catch (error) {
     res.status(400).json({ error: error });

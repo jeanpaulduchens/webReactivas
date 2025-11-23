@@ -2,7 +2,8 @@ import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createReservation, getReservationsByDateAndService } from "../api/reservations";
 import { getAllServices } from "../api/services";
-import type { Service } from "../types";
+import { restoreLogin } from "../api/login";
+import type { Service, User } from "../types";
 
 const HOURS: string[] = ["09:00","09:30","10:00","10:30","11:00","11:30","13:00","13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30"];
 
@@ -23,14 +24,18 @@ export default function Reservations() {
   const [selectedDate, setSelectedDate] = useState<Date>(today);
   const [slot, setSlot] = useState<string | null>(null);
 
-  const [fullName, setFullName] = useState<string>("");
-  const [phone, setPhone] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
+  const [user, setUser] = useState<User | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [serviceId, setServiceId] = useState<string>("");
   const [reservedSlots, setReservedSlots] = useState<string[]>([]);
 
   useEffect(() => {
+    // Obtener usuario autenticado
+    restoreLogin().then(userData => {
+      setUser(userData);
+    });
+    
+    // Obtener servicios
     getAllServices().then(data => {
       setServices(data);
       if (data.length > 0) setServiceId(data[0].id || "");
@@ -45,14 +50,11 @@ export default function Reservations() {
     });
   }, [serviceId, selectedDate]);
 
-  const canConfirm = fullName && email && selectedDate && slot && serviceId;
+  const canConfirm = user && selectedDate && slot && serviceId;
 
   async function handleConfirm() {
     if (!canConfirm) return;
     const reservation = {
-      fullName,
-      email,
-      phone,
       serviceId,
       date: selectedDate.toISOString().slice(0,10),
       time: slot || "",
@@ -61,6 +63,7 @@ export default function Reservations() {
     try {
       await createReservation(reservation);
       alert("Reserva creada exitosamente");
+      navigate('/mis-reservas');
     } catch (e) {
       alert("Error al crear la reserva");
     }
@@ -74,21 +77,15 @@ export default function Reservations() {
       <h2 className="section-title">Reservas</h2>
 
       <div className="panel pad reserve-container">
-        {/* Datos del cliente */}
-        <div className="form-grid">
-          <div>
-            <label className="label">Nombre Completo</label>
-            <input className="input" placeholder="Tu Nombre Completo" value={fullName} onChange={e=>setFullName(e.target.value)} />
+        {/* Información del cliente autenticado */}
+        {user && (
+          <div style={{ marginBottom: '24px', padding: '14px', background: '#f9fafb', borderRadius: '10px' }}>
+            <div style={{ fontWeight: 600, marginBottom: '6px' }}>Reservando como:</div>
+            <div style={{ color: '#6b7280', fontSize: '14px' }}>
+              {user.name} • {user.email} {user.phone && `• ${user.phone}`}
+            </div>
           </div>
-          <div>
-            <label className="label">Número de Teléfono</label>
-            <input className="input" placeholder="+56 9 1234 5678" value={phone} onChange={e=>setPhone(e.target.value)} />
-          </div>
-          <div className="col-span-2">
-            <label className="label">Correo Electrónico</label>
-            <input className="input" placeholder="tu.email@ejemplo.com" value={email} onChange={e=>setEmail(e.target.value)} />
-          </div>
-        </div>
+        )}
 
         <h3 className="form-heading">Seleccionar Servicio</h3>
         <select className="select" value={serviceId} onChange={e=>setServiceId(e.target.value)}>
