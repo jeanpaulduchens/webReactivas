@@ -34,7 +34,7 @@ const reservationSchema = new mongoose.Schema<ReservationData>({
   status: { 
     type: String, 
     enum: Object.values(ReservationStatus), 
-    default: ReservationStatus.PENDING, 
+    default: ReservationStatus.CONFIRMED, // Cambiar default a CONFIRMED
     required: true 
   },
   }, {

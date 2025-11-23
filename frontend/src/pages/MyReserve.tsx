@@ -41,13 +41,24 @@ export default function MyBookings() {
     }
   }, [userRole, selectedDate, fetchClientReservations, fetchBarberReservations]);
 
-  const formatDate = (dateStr: string) => {
-    // Parsear la fecha manualmente para evitar problemas de zona horaria
-    // dateStr viene en formato "YYYY-MM-DD"
-    const [year, month, day] = dateStr.split('-').map(Number);
+  const formatDate = (dateInput: string | Date) => {
+    // Manejar tanto strings como objetos Date
+    let date: Date;
     
-    // Crear fecha en hora local (no UTC)
-    const date = new Date(year, month - 1, day);
+    if (typeof dateInput === 'string') {
+      // Si es string, puede venir en formato "YYYY-MM-DD" o ISO
+      if (dateInput.includes('T')) {
+        // Es un string ISO completo (ej: "2025-11-26T00:00:00.000Z")
+        date = new Date(dateInput);
+      } else {
+        // Es formato "YYYY-MM-DD"
+        const [year, month, day] = dateInput.split('-').map(Number);
+        date = new Date(year, month - 1, day);
+      }
+    } else {
+      // Ya es un objeto Date
+      date = new Date(dateInput);
+    }
     
     return date.toLocaleDateString("es-ES", { 
       day: "numeric", 

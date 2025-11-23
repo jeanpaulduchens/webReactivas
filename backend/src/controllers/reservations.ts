@@ -12,10 +12,9 @@ router.get("/", async (req, res) => {
   const { date, serviceId } = req.query;
   let filter: any = {};
   if (date) {
-    // Buscar reservas en ese día (ignorando la hora)
-    const start = new Date(date as string);
-    const end = new Date(date as string);
-    end.setHours(23, 59, 59, 999);
+    // Parsear la fecha en UTC para evitar problemas de zona horaria
+    const start = new Date((date as string) + 'T00:00:00.000Z');
+    const end = new Date((date as string) + 'T23:59:59.999Z');
     filter.date = { $gte: start, $lte: end };
   }
   if (serviceId) {
@@ -35,10 +34,10 @@ router.get("/confirmed-by-day", withUser, requireRole('barbero'), async (req, re
       return res.status(400).json({ error: "Fecha requerida en formato YYYY-MM-DD" });
     }
 
-    // Buscar reservas confirmadas en ese día
-    const start = new Date(date as string);
-    const end = new Date(date as string);
-    end.setHours(23, 59, 59, 999);
+    // Parsear la fecha en UTC para evitar problemas de zona horaria
+    // Si date viene como "2025-11-23", crear Date en UTC
+    const start = new Date(date + 'T00:00:00.000Z');
+    const end = new Date(date + 'T23:59:59.999Z');
 
     const reservations = await Reservation.find({
       date: { $gte: start, $lte: end },
@@ -51,7 +50,7 @@ router.get("/confirmed-by-day", withUser, requireRole('barbero'), async (req, re
     // Formatear respuesta para el frontend
     const formattedReservations = reservations.map((reservation: any) => ({
       id: reservation.id,
-      date: reservation.date,
+      date: reservation.date.toISOString().split('T')[0], // Convertir a formato YYYY-MM-DD
       time: reservation.time,
       status: reservation.status,
       client: {
@@ -91,7 +90,7 @@ router.get("/my-reservations", withUser, async (req, res) => {
     // Formatear respuesta para el frontend
     const formattedReservations = reservations.map((reservation: any) => ({
       id: reservation.id,
-      date: reservation.date,
+      date: reservation.date.toISOString().split('T')[0], // Convertir a formato YYYY-MM-DD
       time: reservation.time,
       status: reservation.status,
       service: {
@@ -128,13 +127,17 @@ router.post("/", withUser, async (req, res) => {
       return res.status(400).json({ error: "Servicio no encontrado" });
     }
 
+    // Parsear la fecha en UTC para evitar problemas de zona horaria
+    // Si date viene como "2025-11-25", lo convertimos a Date en UTC
+    const reservationDate = new Date(date + 'T00:00:00.000Z');
+
     // Crear reserva con el usuario autenticado
     const newReservation = new Reservation({
       user: userId,
       service: service._id,
-      date,
+      date: reservationDate,
       time,
-      status: status || "pending"
+      status: status || "confirmed" // Cambiar default a "confirmed" para que aparezcan en la vista del barbero
     });
     const savedReservation = await newReservation.save();
     
@@ -175,7 +178,10 @@ router.put("/:id", withUser, async (req, res) => {
       }
       reservation.service = service._id;
     }
-    if (date) reservation.date = date;
+    if (date) {
+      // Parsear la fecha en UTC
+      reservation.date = new Date(date + 'T00:00:00.000Z');
+    }
     if (time) reservation.time = time;
     if (status) reservation.status = status;
 
@@ -207,6 +213,53 @@ router.delete("/:id", withUser, async (req, res) => {
     res.status(204).send();
   } catch (error) {
     res.status(400).json({ error: error });
+  }
+});
+
+// TEMPORAL: Endpoint para migrar reservas pendientes a confirmadas
+// TODO: Eliminar después de la migración
+router.post("/migrate-to-confirmed", async (req, res) => {
+  try {
+    // 1. Cambiar status de pending a confirmed
+    const statusResult = await Reservation.updateMany(
+      { status: ReservationStatus.PENDING },
+      { $set: { status: ReservationStatus.CONFIRMED } }
+    );
+    
+    console.log('✅ Status migration completed:', statusResult);
+    
+    // 2. Normalizar fechas: buscar todas las reservas y ajustar fechas con timezone offset
+    const allReservations = await Reservation.find({});
+    let fixedDates = 0;
+    
+    for (const reservation of allReservations) {
+      const date = new Date(reservation.date);
+      // Si la fecha tiene un offset de 3 horas (como 2025-11-26T03:00:00.000Z)
+      // la ajustamos a medianoche UTC
+      if (date.getUTCHours() !== 0 || date.getUTCMinutes() !== 0 || date.getUTCSeconds() !== 0) {
+        // Extraer solo la parte de la fecha y crear una nueva fecha en UTC a medianoche
+        const year = date.getUTCFullYear();
+        const month = date.getUTCMonth();
+        const day = date.getUTCDate();
+        const normalizedDate = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
+        
+        console.log(`Fixing date: ${reservation.date} -> ${normalizedDate}`);
+        reservation.date = normalizedDate;
+        await reservation.save();
+        fixedDates++;
+      }
+    }
+    
+    console.log(`✅ Date normalization completed. Fixed ${fixedDates} dates.`);
+    
+    res.json({ 
+      message: "Migración completada", 
+      statusModified: statusResult.modifiedCount,
+      datesFixed: fixedDates
+    });
+  } catch (error) {
+    console.error('❌ Migration error:', error);
+    res.status(500).json({ error: "Error en la migración" });
   }
 });
 

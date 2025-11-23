@@ -69,7 +69,7 @@ export default function Reservations() {
       serviceId,
       date: selectedDate.toISOString().slice(0,10),
       time: slot || "",
-      status: "pending"
+      status: "confirmed" // Cambiar a "confirmed" para que aparezca en la vista del barbero
     };
     try {
       await createReservation(reservation);
