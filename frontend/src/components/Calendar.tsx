@@ -91,7 +91,7 @@ export default function Calendar({ selectedDate, onDateSelect }: CalendarProps) 
               key={dayObj.dateStr}
               className={`w-full aspect-square grid place-items-center rounded-lg border cursor-pointer text-sm transition-all ${
                 isSelected 
-                  ? "bg-indigo-100 text-primary font-bold border-primary" 
+                  ? "bg-primary text-white font-bold border-primary" 
                   : "border-transparent bg-white text-gray-700 hover:border-indigo-300 hover:bg-blue-50"
               }`}
               onClick={() => onDateSelect(dayObj.dateStr)}
