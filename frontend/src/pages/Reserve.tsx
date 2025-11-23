@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { createReservation, getReservationsByDateAndService } from "../api/reservations";
 import { getAllServices } from "../api/services";
 import type { Service } from "../types";
@@ -12,12 +13,8 @@ function makeMonth(y: number, m: number): Date[] {
   return Array.from({length:42},(_,i)=>{ const d=new Date(start); d.setDate(start.getDate()+i); return d;});
 }
 
-interface ReservationsProps {
-  onBack: () => void;
-}
-
-
-export default function Reservations({ onBack }: ReservationsProps) {
+export default function Reservations() {
+  const navigate = useNavigate();
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -145,7 +142,7 @@ export default function Reservations({ onBack }: ReservationsProps) {
         </div>
 
         <div className="actions-group">
-          <button className="btn" onClick={onBack}>← Volver</button>
+          <button className="btn" onClick={() => navigate(-1)}>← Volver</button>
           <button className="btn primary" disabled={!canConfirm} onClick={handleConfirm}>✓ Confirmar Reserva</button>
         </div>
       </div>

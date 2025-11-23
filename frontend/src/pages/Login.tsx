@@ -1,11 +1,9 @@
 import { useState } from "react";
-import { login } from '@api/login'; //, restoreLogin, logout } from "@api/login";
+import { useNavigate } from "react-router-dom";
+import { login } from '@api/login';
 
-interface LoginProps {
-  onBack: () => void;
-}
-
-export default function Login({ onBack }: LoginProps) {
+export default function Login() {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -22,6 +20,10 @@ export default function Login({ onBack }: LoginProps) {
       const userData = await login({ username, password });
       setSuccess(true);
       console.log("Login exitoso:", userData);
+      // Redirigir a la página principal después del login exitoso
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
     } catch (err: any) {
       setError(err.response?.data?.error || "Error al iniciar sesión");
       console.error("Error en login:", err);
@@ -98,7 +100,7 @@ export default function Login({ onBack }: LoginProps) {
             ¿No tienes una cuenta? <a href="#!">Regístrate</a>
           </p>
 
-          <button className="btn login-back" onClick={onBack}>← Volver</button>
+          <button className="btn login-back" onClick={() => navigate(-1)}>← Volver</button>
         </div>
       </div>
     </div>

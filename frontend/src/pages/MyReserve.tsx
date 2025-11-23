@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Calendar from "../components/Calendar";
 import { getConfirmedReservationsByDay } from "../api/barberReservations";
 import type { BarberReservation } from "../types";
 
-interface MyBookingsProps {
-  onBack: () => void;
-}
-
-export default function MyBookings({ onBack }: MyBookingsProps) {
+export default function MyBookings() {
+  const navigate = useNavigate();
   const today = new Date().toISOString().split("T")[0];
   const [selectedDate, setSelectedDate] = useState(today);
   const [reservations, setReservations] = useState<BarberReservation[]>([]);
@@ -135,7 +133,7 @@ export default function MyBookings({ onBack }: MyBookingsProps) {
               )}
 
               <div className="actions-row">
-                <button className="btn" onClick={onBack}>← Volver</button>
+                <button className="btn" onClick={() => navigate(-1)}>← Volver</button>
               </div>
             </div>
           </div>
