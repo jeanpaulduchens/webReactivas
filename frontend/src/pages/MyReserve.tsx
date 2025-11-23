@@ -42,7 +42,13 @@ export default function MyBookings() {
   }, [userRole, selectedDate, fetchClientReservations, fetchBarberReservations]);
 
   const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
+    // Parsear la fecha manualmente para evitar problemas de zona horaria
+    // dateStr viene en formato "YYYY-MM-DD"
+    const [year, month, day] = dateStr.split('-').map(Number);
+    
+    // Crear fecha en hora local (no UTC)
+    const date = new Date(year, month - 1, day);
+    
     return date.toLocaleDateString("es-ES", { 
       day: "numeric", 
       month: "long",
