@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { createReservation, getReservationsByDateAndService } from "../api/reservations";
 import { getAllServices } from "../api/services";
 import { restoreLogin } from "../api/login";
@@ -16,6 +16,7 @@ function makeMonth(y: number, m: number): Date[] {
 
 export default function Reservations() {
   const navigate = useNavigate();
+  const location = useLocation();
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -38,9 +39,19 @@ export default function Reservations() {
     // Obtener servicios
     getAllServices().then(data => {
       setServices(data);
-      if (data.length > 0) setServiceId(data[0].id || "");
+      
+      // Verificar si hay un servicio seleccionado desde la navegación
+      const selectedService = location.state?.selectedService as Service | undefined;
+      
+      if (selectedService && selectedService.id) {
+        // Si hay un servicio seleccionado, usarlo
+        setServiceId(selectedService.id);
+      } else if (data.length > 0) {
+        // Si no, usar el primero por defecto
+        setServiceId(data[0].id || "");
+      }
     });
-  }, []);
+  }, [location.state]);
 
   useEffect(() => {
     if (!serviceId || !selectedDate) return;

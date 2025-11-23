@@ -15,9 +15,9 @@ export default function Services() {
     });
   }, []);
 
-  function handleReserve(_svc: Service) {
-    // Navegar a la vista de reservas
-    navigate('/reservas');
+  function handleReserve(service: Service) {
+    // Navegar a la vista de reservas pasando el servicio seleccionado
+    navigate('/reservas', { state: { selectedService: service } });
   }
   
   console.log(services);
