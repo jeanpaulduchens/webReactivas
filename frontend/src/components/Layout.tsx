@@ -63,9 +63,6 @@ export default function Layout() {
           )}
           {isAuthenticated ? (
             <>
-              <span className="text-muted ml-4">
-                Hola, {user?.name}
-              </span>
               <button onClick={handleLogout}>
                 Cerrar Sesión
               </button>
