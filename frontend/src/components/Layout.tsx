@@ -50,13 +50,7 @@ export default function Layout() {
           {isAuthenticated && user?.role === 'admin' && (
             <button 
               onClick={() => navigate('/admin/usuarios')}
-              style={{ 
-                fontWeight: location.pathname === '/admin/usuarios' ? 'bold' : 'normal',
-                background: '#dc2626',
-                color: '#fff',
-                padding: '0.5rem 1rem',
-                borderRadius: '6px'
-              }}
+              className={location.pathname === '/admin/usuarios' ? 'font-bold text-red-600' : 'font-normal text-red-600'}
             >
               Administración
             </button>
