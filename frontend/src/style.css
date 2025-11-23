@@ -1,45 +1,290 @@
-/* Color y tokens base */
-:root{
-  --primary:#1e3a8a;
-  --primary-600:#1f4aa6;
-  --muted:#6b7280;
-  --bg:#f5f6fa;
-  --card:#fff;
-  --shadow:0 6px 18px rgba(16,24,40,.08);
-  --radius:14px;
-}
-*{box-sizing:border-box}
-html,body,#root{height:100%}
-body{
-  margin:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-  background:var(--bg);
-  color:#111827;
-}
-.container{max-width:1150px;margin:0 auto;padding:24px}
+@import "tailwindcss";
 
-/* Layout con sidebar */
-.layout{display:grid;grid-template-columns:220px 1fr;gap:24px}
-
-/* Navbar simple */
-.navbar{height:60px;display:flex;align-items:center;gap:12px}
-.brand{font-weight:800;color:var(--primary)}
-
-/* Sidebar */
-.sidebar{width:200px;padding:16px 0;color:#6b7280}
-.sidebar a{display:block;text-decoration:none;color:inherit;padding:6px 0}
-
-/* Hero */
-.hero{
-  position:relative;border-radius:var(--radius);box-shadow:var(--shadow);
-  overflow:hidden;height:220px;margin-bottom:18px;
-  background:url('https://images.unsplash.com/photo-1582095133179-bfd08e2fc6b3?q=80&w=1800&auto=format&fit=crop') center/cover no-repeat;
-  display:grid;place-items:center;
+@theme {
+  --color-primary: #1e3a8a;
+  --color-primary-600: #1f4aa6;
+  --color-muted: #6b7280;
+  --color-bg: #f5f6fa;
+  --radius-card: 14px;
+  --shadow-card: 0 6px 18px rgba(16,24,40,.08);
 }
-.hero::after{
-  content:"";position:absolute;inset:0;background:rgba(15,23,42,.55)
+
+/* Clases legacy solo para Reserve y MyReserve */
+.panel { 
+  background: #fff; 
+  border-radius: 14px; 
+  box-shadow: 0 6px 18px rgba(16,24,40,.08); 
 }
-.hero-content{position:relative;color:#fff;text-align:center;padding:18px}
+.panel.pad { 
+  padding: 18px; 
+}
+
+.form-grid { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 14px; 
+}
+.form-grid .col-span-2 { 
+  grid-column: span 2; 
+}
+
+.label { 
+  font-size: 12px; 
+  font-weight: 700; 
+  color: #6b7280; 
+  margin-bottom: 6px; 
+  display: block; 
+}
+
+.input, .select {
+  width: 100%; 
+  height: 40px; 
+  border: 1px solid #e5e7eb; 
+  border-radius: 10px; 
+  padding: 0 12px;
+  background: #fff; 
+  outline: none;
+}
+.input:focus, .select:focus { 
+  border-color: #c7d2fe; 
+  box-shadow: 0 0 0 3px #e0e7ff; 
+}
+
+/* Calendar */
+.calendar { 
+  display: inline-block; 
+  border: 1px solid #e5e7eb; 
+  border-radius: 12px; 
+  padding: 10px; 
+}
+.cal-head { 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  margin-bottom: 8px; 
+}
+.cal-grid { 
+  display: grid; 
+  grid-template-columns: repeat(7, 1fr); 
+  gap: 8px; 
+  text-align: center;
+}
+.cal-cell { 
+  width: 100%; 
+  aspect-ratio: 1;
+  display: grid; 
+  place-items: center; 
+  border-radius: 8px; 
+  border: 1px solid transparent;
+  background: #fff;
+  color: #374151;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+.cal-cell:hover { 
+  border-color: #c7d2fe; 
+  background: #f5f7ff;
+}
+.cal-cell.active { 
+  background: #1e3a8a; 
+  color: #fff;
+  font-weight: 700;
+}
+.cal-cell.muted { 
+  color: #9ca3af; 
+}
+.cal-nav { 
+  border: 1px solid #e5e7eb; 
+  background: #fff; 
+  width: 36px; 
+  height: 36px; 
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s;
+}
+.cal-nav:hover {
+  background: #f9fafb;
+  border-color: #c7d2fe;
+}
+.cal-grid-days { 
+  margin-bottom: 6px; 
+  color: #9ca3af; 
+}
+
+/* Time slots */
+.slots { 
+  display: grid; 
+  grid-template-columns: repeat(4, 100px); 
+  gap: 12px; 
+}
+.slot {
+  border: 1px solid #e5e7eb; 
+  height: 40px; 
+  border-radius: 10px; 
+  display: grid; 
+  place-items: center; 
+  cursor: pointer;
+  background: #fff;
+}
+.slot.active { 
+  border-color: #1e3a8a; 
+  box-shadow: 0 0 0 3px #e0e7ff; 
+}
+.slot:disabled { 
+  opacity: 0.5; 
+  cursor: not-allowed; 
+}
+
+/* Buttons */
+.btn {
+  width: 100%; 
+  border: 0; 
+  border-radius: 10px; 
+  height: 42px; 
+  font-weight: 700; 
+  background: #1e3a8a; 
+  color: #fff; 
+  cursor: pointer;
+}
+.btn:hover {
+  background: #1f4aa6;
+}
+.btn.primary { 
+  background: #1e3a8a; 
+  color: #fff; 
+  border: 0; 
+  height: 44px; 
+  border-radius: 10px; 
+  padding: 0 18px; 
+}
+.btn.primary:disabled { 
+  opacity: 0.55; 
+}
+.btn.block { 
+  width: 100%; 
+}
+
+/* Layouts */
+.two-col { 
+  display: grid; 
+  grid-template-columns: 380px 1fr; 
+  gap: 24px; 
+}
+.reserve-container { 
+  max-width: 980px; 
+}
+.form-heading { 
+  font-weight: 800; 
+  font-size: 22px; 
+  margin: 18px 0 8px; 
+}
+.actions-group { 
+  display: flex; 
+  gap: 12px; 
+  margin-top: 18px; 
+}
+
+/* MyReserve page */
+.layout-with-sidebar { 
+  display: grid; 
+  grid-template-columns: 220px 1fr; 
+  gap: 24px; 
+}
+.sidebar-vertical { 
+  background: #fff; 
+  border-radius: 12px; 
+  box-shadow: 0 6px 18px rgba(16,24,40,.08); 
+  padding: 10px; 
+}
+.sidebar-vertical a { 
+  display: block; 
+  padding: 10px 12px; 
+  border-radius: 8px; 
+  color: #111827; 
+  text-decoration: none; 
+}
+.sidebar-vertical a.active { 
+  background: #eef2ff; 
+  color: #1e3a8a; 
+  font-weight: 700; 
+}
+.page-title { 
+  font-weight: 800; 
+  font-size: 26px; 
+  margin-top: 0; 
+}
+.section-subtitle { 
+  font-weight: 800; 
+  font-size: 20px; 
+  margin-top: 0; 
+}
+.description-text { 
+  margin-top: 0; 
+  margin-bottom: 16px; 
+  color: #6b7280; 
+  font-size: 14px; 
+}
+.loading-message { 
+  text-align: center; 
+  padding: 24px; 
+  color: #6b7280; 
+}
+.error-box { 
+  padding: 12px; 
+  background: #fee2e2; 
+  border: 1px solid #fca5a5; 
+  border-radius: 8px;
+  color: #dc2626;
+  margin-bottom: 16px;
+}
+.reservations-table { 
+  width: 100%; 
+  border-collapse: collapse; 
+}
+.reservations-table thead tr { 
+  text-align: left; 
+  color: #6b7280; 
+  font-size: 12px; 
+  font-weight: 700; 
+}
+.reservations-table th { 
+  padding-bottom: 12px; 
+}
+.reservations-table tbody tr { 
+  border-top: 1px solid #e5e7eb; 
+}
+.reservations-table td { 
+  padding: 12px 0; 
+  font-size: 14px; 
+}
+.client-name { 
+  font-weight: 600; 
+}
+.client-info { 
+  font-size: 12px; 
+  color: #6b7280; 
+}
+.service-info { 
+  font-size: 12px; 
+  color: #6b7280; 
+}
+.status-badge { 
+  color: #16a34a; 
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.empty-message { 
+  padding: 24px; 
+  text-align: center; 
+  color: #6b7280;
+  font-size: 14px;
+}
+.actions-row { 
+  margin-top: 24px; 
+}
 .hero-title{font-size:28px;font-weight:800;margin:0 0 8px}
 .hero-sub{font-size:14px;opacity:.95;max-width:760px;margin:0 auto}
 

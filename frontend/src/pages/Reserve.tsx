@@ -85,45 +85,49 @@ export default function Reservations() {
 
   return (
     <div>
-      <h2 className="section-title">Reservas</h2>
+      <h2 className="text-lg font-extrabold my-[18px] mx-0">Reservas</h2>
 
-      <div className="panel pad reserve-container">
+      <div className="bg-white rounded-card shadow-card p-[18px] max-w-[980px]">
         {/* Información del cliente autenticado */}
         {user && (
-          <div style={{ marginBottom: '24px', padding: '14px', background: '#f9fafb', borderRadius: '10px' }}>
-            <div style={{ fontWeight: 600, marginBottom: '6px' }}>Reservando como:</div>
-            <div style={{ color: '#6b7280', fontSize: '14px' }}>
+          <div className="mb-6 p-3.5 bg-gray-50 rounded-[10px]">
+            <div className="font-semibold mb-1.5">Reservando como:</div>
+            <div className="text-muted text-sm">
               {user.name} • {user.email} {user.phone && `• ${user.phone}`}
             </div>
           </div>
         )}
 
-        <h3 className="form-heading">Seleccionar Servicio</h3>
-        <select className="select" value={serviceId} onChange={e=>setServiceId(e.target.value)}>
+        <h3 className="font-extrabold text-[22px] my-[18px] mx-0 mt-0">Seleccionar Servicio</h3>
+        <select className="w-full h-10 border border-gray-200 rounded-[10px] px-3 bg-white outline-none focus:border-indigo-300 focus:shadow-[0_0_0_3px_#e0e7ff]" value={serviceId} onChange={e=>setServiceId(e.target.value)}>
           {services.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select>
 
-        <h3 className="form-heading">Fecha y Hora</h3>
-        <div className="two-col">
+        <h3 className="font-extrabold text-[22px] my-[18px] mx-0">Fecha y Hora</h3>
+        <div className="grid grid-cols-[380px_1fr] gap-6">
           {/* Calendar */}
           <div>
-            <div className="calendar">
-              <div className="cal-head">
-                <button className="cal-nav" onClick={prev}>‹</button>
+            <div className="inline-block border border-gray-200 rounded-xl p-2.5">
+              <div className="flex items-center justify-between mb-2">
+                <button className="border border-gray-200 bg-white w-9 h-9 rounded-lg cursor-pointer text-lg hover:bg-gray-50 hover:border-indigo-300 transition-all" onClick={prev}>‹</button>
                 <strong>{new Date(year,month).toLocaleString("es", { month:"long", year:"numeric" })}</strong>
-                <button className="cal-nav" onClick={next}>›</button>
+                <button className="border border-gray-200 bg-white w-9 h-9 rounded-lg cursor-pointer text-lg hover:bg-gray-50 hover:border-indigo-300 transition-all" onClick={next}>›</button>
               </div>
-              <div className="cal-grid cal-grid-days">
-                {["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=><div key={d} className="cal-cell">{d}</div>)}
+              <div className="grid grid-cols-7 gap-2 text-center mb-1.5 text-gray-400">
+                {["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=><div key={d} className="w-full aspect-square grid place-items-center text-sm">{d}</div>)}
               </div>
-              <div className="cal-grid">
+              <div className="grid grid-cols-7 gap-2 text-center">
                 {days.map(d=>{
                   const isThisMonth = d.getMonth()===month;
                   const active = d.toDateString()===selectedDate.toDateString();
                   return (
                     <button
                       key={d.toISOString()}
-                      className={`cal-cell ${!isThisMonth?"muted":""} ${active?"active":""}`}
+                      className={`w-full aspect-square grid place-items-center rounded-lg border border-transparent bg-white cursor-pointer text-sm transition-all ${
+                        !isThisMonth ? "text-gray-400" : "text-gray-700"
+                      } ${
+                        active ? "bg-primary text-white font-bold" : "hover:border-indigo-300 hover:bg-blue-50"
+                      }`}
                       onClick={()=>setSelectedDate(new Date(d))}
                     >
                       {d.getDate()}
@@ -135,11 +139,13 @@ export default function Reservations() {
           </div>
 
           {/* Slots */}
-          <div className="slots">
+          <div className="grid grid-cols-4 gap-3">
             {HOURS.map(h => (
               <button
                 key={h}
-                className={`slot ${slot===h?"active":""} ${reservedSlots.includes(h)?"slot:disabled":""}`}
+                className={`border h-10 rounded-[10px] grid place-items-center cursor-pointer bg-white transition-all ${
+                  slot===h ? "border-primary shadow-[0_0_0_3px_#e0e7ff]" : "border-gray-200 hover:border-indigo-300"
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
                 onClick={()=>setSlot(h)}
                 disabled={reservedSlots.includes(h)}
               >
@@ -149,9 +155,9 @@ export default function Reservations() {
           </div>
         </div>
 
-        <div className="actions-group">
-          <button className="btn" onClick={() => navigate(-1)}>← Volver</button>
-          <button className="btn primary" disabled={!canConfirm} onClick={handleConfirm}>✓ Confirmar Reserva</button>
+        <div className="flex gap-3 mt-[18px]">
+          <button className="w-full border-0 rounded-[10px] h-[42px] font-bold bg-primary text-white cursor-pointer hover:bg-primary-600" onClick={() => navigate(-1)}>← Volver</button>
+          <button className="w-full border-0 rounded-[10px] h-11 font-bold bg-primary text-white cursor-pointer hover:bg-primary-600 px-[18px] disabled:opacity-55" disabled={!canConfirm} onClick={handleConfirm}>✓ Confirmar Reserva</button>
         </div>
       </div>
     </div>

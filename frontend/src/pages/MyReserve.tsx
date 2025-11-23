@@ -60,22 +60,22 @@ export default function MyBookings() {
   if (userRole === 'barbero') {
     return (
       <div>
-        <h2 className="section-title">Mis Reservas Confirmadas</h2>
+        <h2 className="text-lg font-extrabold my-[18px] mx-0">Mis Reservas Confirmadas</h2>
 
-        <div className="layout-with-sidebar">
-          <div className="sidebar">
-            <a className="active" href="#!">Mis Reservas</a>
-            <a href="#!">Servicios</a>
-            <a href="#!">Clientes</a>
-            <a href="#!">Configuración</a>
+        <div className="grid grid-cols-[220px_1fr] gap-6">
+          <div className="w-52 py-4 text-muted">
+            <a className="block py-1.5 font-bold" href="#!">Mis Reservas</a>
+            <a className="block py-1.5" href="#!">Servicios</a>
+            <a className="block py-1.5" href="#!">Clientes</a>
+            <a className="block py-1.5" href="#!">Configuración</a>
           </div>
 
-          <div className="panel pad">
-            <h3 className="page-title">
+          <div className="bg-white rounded-card shadow-card p-[18px]">
+            <h3 className="font-extrabold text-[26px] mt-0">
               Mis Reservas Confirmadas
             </h3>
 
-            <div className="two-col">
+            <div className="grid grid-cols-[380px_1fr] gap-6">
               {/* Calendario */}
               <Calendar 
                 selectedDate={selectedDate} 
@@ -86,56 +86,56 @@ export default function MyBookings() {
               />
 
               {/* Lista de reservas */}
-              <div className="panel pad">
-                <h4 className="section-subtitle">
+              <div className="bg-white rounded-card shadow-card p-[18px]">
+                <h4 className="font-extrabold text-xl mt-0">
                   Citas del {formatDate(selectedDate)}
                 </h4>
-                <p className="description-text">
+                <p className="mt-0 mb-4 text-muted text-sm">
                   Aquí tienes un resumen de tus citas confirmadas y programadas.
                 </p>
 
                 {barberLoading && (
-                  <div className="loading-message">
+                  <div className="text-center py-6 text-muted">
                     Cargando reservas...
                   </div>
                 )}
 
                 {barberError && (
-                  <div className="error-box">
+                  <div className="p-3 bg-red-50 border border-red-300 rounded-lg text-red-600 mb-4">
                     {barberError}
                   </div>
                 )}
 
                 {!barberLoading && !barberError && (
-                  <table className="reservations-table">
+                  <table className="w-full border-collapse">
                     <thead>
-                      <tr>
-                        <th>Hora</th>
-                        <th>Cliente</th>
-                        <th>Servicio</th>
-                        <th>Estado</th>
+                      <tr className="text-left text-muted text-xs font-bold">
+                        <th className="pb-3">Hora</th>
+                        <th className="pb-3">Cliente</th>
+                        <th className="pb-3">Servicio</th>
+                        <th className="pb-3">Estado</th>
                       </tr>
                     </thead>
                     <tbody>
                       {barberReservations.map((reservation) => (
-                        <tr key={reservation.id}>
-                          <td>
+                        <tr key={reservation.id} className="border-t border-gray-200">
+                          <td className="py-3 text-sm">
                             {reservation.time}
                           </td>
-                          <td>
-                            <div className="client-name">{reservation.client.name}</div>
-                            <div className="client-info">
+                          <td className="py-3 text-sm">
+                            <div className="font-semibold">{reservation.client.name}</div>
+                            <div className="text-xs text-muted">
                               {reservation.client.phone || reservation.client.email}
                             </div>
                           </td>
-                          <td>
+                          <td className="py-3 text-sm">
                             <div>{reservation.service.name}</div>
-                            <div className="service-info">
+                            <div className="text-xs text-muted">
                               {reservation.service.durationMin} min · ${reservation.service.price}
                             </div>
                           </td>
-                          <td>
-                            <span className="status-badge">
+                          <td className="py-3 text-sm">
+                            <span className="text-green-600 text-[13px] font-semibold capitalize">
                               {reservation.status}
                             </span>
                           </td>
@@ -143,7 +143,7 @@ export default function MyBookings() {
                       ))}
                       {barberReservations.length === 0 && (
                         <tr>
-                          <td colSpan={4} className="empty-message">
+                          <td colSpan={4} className="py-6 text-center text-muted text-sm">
                             No hay citas confirmadas para este día.
                           </td>
                         </tr>
@@ -152,8 +152,8 @@ export default function MyBookings() {
                   </table>
                 )}
 
-                <div className="actions-row">
-                  <button className="btn" onClick={() => navigate(-1)}>← Volver</button>
+                <div className="mt-6">
+                  <button className="w-full border-0 rounded-[10px] h-[42px] font-bold bg-primary text-white cursor-pointer hover:bg-primary-600" onClick={() => navigate(-1)}>← Volver</button>
                 </div>
               </div>
             </div>
@@ -166,55 +166,55 @@ export default function MyBookings() {
   // Renderizar vista para clientes
   return (
     <div>
-      <h2 className="section-title">Mis Reservas</h2>
+      <h2 className="text-lg font-extrabold my-[18px] mx-0">Mis Reservas</h2>
 
-      <div className="panel pad">
-        <h3 className="page-title">
+      <div className="bg-white rounded-card shadow-card p-[18px]">
+        <h3 className="font-extrabold text-[26px] mt-0">
           Mis Reservas
         </h3>
-        <p className="description-text">
+        <p className="mt-0 mb-4 text-muted text-sm">
           Aquí puedes ver todas tus reservas realizadas.
         </p>
 
         {clientLoading && (
-          <div className="loading-message">
+          <div className="text-center py-6 text-muted">
             Cargando reservas...
           </div>
         )}
 
         {clientError && (
-          <div className="error-box">
+          <div className="p-3 bg-red-50 border border-red-300 rounded-lg text-red-600 mb-4">
             {clientError}
           </div>
         )}
 
         {!clientLoading && !clientError && (
-          <table className="reservations-table">
+          <table className="w-full border-collapse">
             <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Hora</th>
-                <th>Servicio</th>
-                <th>Duración</th>
-                <th>Precio</th>
-                <th>Estado</th>
+              <tr className="text-left text-muted text-xs font-bold">
+                <th className="pb-3">Fecha</th>
+                <th className="pb-3">Hora</th>
+                <th className="pb-3">Servicio</th>
+                <th className="pb-3">Duración</th>
+                <th className="pb-3">Precio</th>
+                <th className="pb-3">Estado</th>
               </tr>
             </thead>
             <tbody>
               {clientReservations.map((reservation) => (
-                <tr key={reservation.id}>
-                  <td>{formatDate(reservation.date)}</td>
-                  <td>{reservation.time}</td>
-                  <td>
+                <tr key={reservation.id} className="border-t border-gray-200">
+                  <td className="py-3 text-sm">{formatDate(reservation.date)}</td>
+                  <td className="py-3 text-sm">{reservation.time}</td>
+                  <td className="py-3 text-sm">
                     <div>{reservation.service.name}</div>
-                    <div className="service-info">
+                    <div className="text-xs text-muted">
                       {reservation.service.type}
                     </div>
                   </td>
-                  <td>{reservation.service.durationMin} min</td>
-                  <td>${reservation.service.price}</td>
-                  <td>
-                    <span className="status-badge">
+                  <td className="py-3 text-sm">{reservation.service.durationMin} min</td>
+                  <td className="py-3 text-sm">${reservation.service.price}</td>
+                  <td className="py-3 text-sm">
+                    <span className="text-green-600 text-[13px] font-semibold capitalize">
                       {reservation.status}
                     </span>
                   </td>
@@ -222,7 +222,7 @@ export default function MyBookings() {
               ))}
               {clientReservations.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="empty-message">
+                  <td colSpan={6} className="py-6 text-center text-muted text-sm">
                     No tienes reservas aún. ¡Agenda tu primera cita!
                   </td>
                 </tr>
@@ -231,8 +231,8 @@ export default function MyBookings() {
           </table>
         )}
 
-        <div className="actions-row">
-          <button className="btn" onClick={() => navigate(-1)}>← Volver</button>
+        <div className="mt-6">
+          <button className="w-full border-0 rounded-[10px] h-[42px] font-bold bg-primary text-white cursor-pointer hover:bg-primary-600" onClick={() => navigate(-1)}>← Volver</button>
         </div>
       </div>
     </div>

@@ -24,7 +24,7 @@ export default function Services() {
   return (
     <>
       <Hero />
-      <h2 className="section-title">Nuestros Servicios</h2>
+      <h2 className="text-lg font-extrabold my-[18px] mx-0">Nuestros Servicios</h2>
       <ServiceGrid services={services} onReserve={handleReserve} />
     </>
   );

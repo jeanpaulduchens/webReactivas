@@ -47,29 +47,28 @@ export default function Calendar({ selectedDate, onDateSelect }: CalendarProps) 
   const calendarDays = generateCalendarDays();
 
   return (
-    <div className="panel pad">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-        <button className="cal-nav" onClick={goToPreviousMonth} aria-label="Mes anterior">
+    <div className="bg-white rounded-card shadow-card p-[18px]">
+      <div className="flex justify-between items-center mb-4">
+        <button 
+          className="border border-gray-200 bg-white w-9 h-9 rounded-lg cursor-pointer text-lg hover:bg-gray-50 hover:border-indigo-300 transition-all" 
+          onClick={goToPreviousMonth} 
+          aria-label="Mes anterior"
+        >
           ‹
         </button>
-        <strong style={{ fontSize: 16, fontWeight: 700 }}>
+        <strong className="text-base font-bold">
           {monthNames[month]} {year}
         </strong>
-        <button className="cal-nav" onClick={goToNextMonth} aria-label="Mes siguiente">
+        <button 
+          className="border border-gray-200 bg-white w-9 h-9 rounded-lg cursor-pointer text-lg hover:bg-gray-50 hover:border-indigo-300 transition-all" 
+          onClick={goToNextMonth} 
+          aria-label="Mes siguiente"
+        >
           ›
         </button>
       </div>
 
-      <div style={{ 
-        display: "grid", 
-        gridTemplateColumns: "repeat(7, 1fr)", 
-        gap: 6, 
-        marginBottom: 8,
-        textAlign: "center",
-        fontSize: 12,
-        color: "#6b7280",
-        fontWeight: 600
-      }}>
+      <div className="grid grid-cols-7 gap-1.5 mb-2 text-center text-xs text-muted font-semibold">
         <div>Do</div>
         <div>Lu</div>
         <div>Ma</div>
@@ -79,7 +78,7 @@ export default function Calendar({ selectedDate, onDateSelect }: CalendarProps) 
         <div>Sá</div>
       </div>
 
-      <div className="cal-grid" style={{ gridTemplateColumns: "repeat(7, 1fr)" }}>
+      <div className="grid grid-cols-7 gap-2 text-center">
         {calendarDays.map((dayObj, index) => {
           if (dayObj.day === 0) {
             return <div key={`empty-${index}`} />;
@@ -90,7 +89,11 @@ export default function Calendar({ selectedDate, onDateSelect }: CalendarProps) 
           return (
             <button
               key={dayObj.dateStr}
-              className={`cal-cell ${isSelected ? "active" : ""}`}
+              className={`w-full aspect-square grid place-items-center rounded-lg border cursor-pointer text-sm transition-all ${
+                isSelected 
+                  ? "bg-primary text-white font-bold border-primary" 
+                  : "border-transparent bg-white text-gray-700 hover:border-indigo-300 hover:bg-blue-50"
+              }`}
               onClick={() => onDateSelect(dayObj.dateStr)}
               aria-label={`Seleccionar día ${dayObj.day}`}
             >
