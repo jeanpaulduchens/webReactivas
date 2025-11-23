@@ -15,15 +15,16 @@ export default function MyBookings() {
   const [error, setError] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<'cliente' | 'barbero' | null>(null);
 
-  // Detectar el rol del usuario desde el token JWT
+  // Detectar el rol del usuario desde localStorage
   useEffect(() => {
-    const token = localStorage.getItem('csrfToken');
-    if (token) {
+    const userDataStr = localStorage.getItem('userData');
+    if (userDataStr) {
       try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setUserRole(payload.role);
+        const userData = JSON.parse(userDataStr);
+        setUserRole(userData.role);
+        console.log('Rol del usuario:', userData.role);
       } catch (err) {
-        console.error('Error decodificando token:', err);
+        console.error('Error parseando userData:', err);
       }
     }
   }, []);
@@ -36,11 +37,15 @@ export default function MyBookings() {
       try {
         if (userRole === 'barbero') {
           // Barbero: cargar reservas por día
+          console.log('Cargando reservas de barbero para fecha:', selectedDate);
           const data = await getConfirmedReservationsByDay(selectedDate);
+          console.log('Reservas de barbero obtenidas:', data);
           setBarberReservations(data);
         } else if (userRole === 'cliente') {
           // Cliente: cargar sus propias reservas
+          console.log('Cargando reservas de cliente');
           const data = await getMyReservations();
+          console.log('Reservas de cliente obtenidas:', data);
           setClientReservations(data);
         }
       } catch (err: any) {
@@ -54,7 +59,10 @@ export default function MyBookings() {
     };
 
     if (userRole) {
+      console.log('Ejecutando fetchReservations para rol:', userRole);
       fetchReservations();
+    } else {
+      console.log('No hay userRole definido aún');
     }
   }, [userRole, selectedDate]);
 

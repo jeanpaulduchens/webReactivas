@@ -1,4 +1,3 @@
-import axios from "axios";
 import axiosSecure from "@utils/axiosSecure";
 
 type Credentials = {
@@ -7,12 +6,17 @@ type Credentials = {
 };
 
 const login = async (credentials: Credentials) => {
-    const response = await axios.post("/api/login", credentials);
+    const response = await axiosSecure.post("/api/login", credentials);
 
     const csrfToken = response.headers["x-csrf-token"];
 
     if (csrfToken) {
         localStorage.setItem("csrfToken", csrfToken);
+    }
+
+    // Guardar información del usuario en localStorage
+    if (response.data) {
+        localStorage.setItem("userData", JSON.stringify(response.data));
     }
 
     return response.data;
@@ -28,8 +32,9 @@ const restoreLogin = async () => {
 };
 
 const logout = () => {
-    return axios.post("/api/login/logout").then(() => {
+    return axiosSecure.post("/api/login/logout").then(() => {
         localStorage.removeItem("csrfToken");
+        localStorage.removeItem("userData");
     });
 };
 
