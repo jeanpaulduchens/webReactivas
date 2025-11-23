@@ -118,49 +118,51 @@ export default function MyBookings() {
                 )}
 
                 {!barberLoading && !barberError && (
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="text-left text-muted text-xs font-bold">
-                        <th className="pb-3">Hora</th>
-                        <th className="pb-3">Cliente</th>
-                        <th className="pb-3">Servicio</th>
-                        <th className="pb-3">Estado</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {barberReservations.map((reservation) => (
-                        <tr key={reservation.id} className="border-t border-gray-200">
-                          <td className="py-3 text-sm">
-                            {reservation.time}
-                          </td>
-                          <td className="py-3 text-sm">
-                            <div className="font-semibold">{reservation.client.name}</div>
-                            <div className="text-xs text-muted">
-                              {reservation.client.phone || reservation.client.email}
-                            </div>
-                          </td>
-                          <td className="py-3 text-sm">
-                            <div>{reservation.service.name}</div>
-                            <div className="text-xs text-muted">
-                              {reservation.service.durationMin} min · ${reservation.service.price}
-                            </div>
-                          </td>
-                          <td className="py-3 text-sm">
-                            <span className="text-green-600 text-[13px] font-semibold capitalize">
-                              {reservation.status}
-                            </span>
-                          </td>
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr className="border-b-2 border-gray-200">
+                          <th className="text-left p-3 font-semibold text-sm">Hora</th>
+                          <th className="text-left p-3 font-semibold text-sm">Cliente</th>
+                          <th className="text-left p-3 font-semibold text-sm">Servicio</th>
+                          <th className="text-left p-3 font-semibold text-sm">Estado</th>
                         </tr>
-                      ))}
-                      {barberReservations.length === 0 && (
-                        <tr>
-                          <td colSpan={4} className="py-6 text-center text-muted text-sm">
-                            No hay citas confirmadas para este día.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {barberReservations.map((reservation) => (
+                          <tr key={reservation.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
+                            <td className="p-3 text-sm font-medium">
+                              {reservation.time}
+                            </td>
+                            <td className="p-3 text-sm">
+                              <div className="font-semibold">{reservation.client.name}</div>
+                              <div className="text-xs text-muted">
+                                {reservation.client.phone || reservation.client.email}
+                              </div>
+                            </td>
+                            <td className="p-3 text-sm">
+                              <div className="font-medium">{reservation.service.name}</div>
+                              <div className="text-xs text-muted">
+                                {reservation.service.durationMin} min · ${reservation.service.price}
+                              </div>
+                            </td>
+                            <td className="p-3 text-sm">
+                              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 capitalize inline-block">
+                                {reservation.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                        {barberReservations.length === 0 && (
+                          <tr>
+                            <td colSpan={4} className="py-8 text-center text-muted text-sm">
+                              No hay citas confirmadas para este día.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 )}
 
                 <div className="mt-6">
