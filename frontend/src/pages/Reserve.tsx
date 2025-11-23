@@ -1,28 +1,19 @@
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { createReservation, getReservationsByDateAndService } from "../api/reservations";
 import { getAllServices } from "../api/services";
 import { restoreLogin } from "../api/login";
+import Calendar from "../components/Calendar";
 import type { Service, User } from "../types";
 
 const HOURS: string[] = ["09:00","09:30","10:00","10:30","11:00","11:30","13:00","13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30"];
 
-function makeMonth(y: number, m: number): Date[] {
-  const first = new Date(y,m,1);
-  const start = new Date(first);
-  start.setDate(first.getDate() - ((first.getDay()+6)%7)); 
-  return Array.from({length:42},(_,i)=>{ const d=new Date(start); d.setDate(start.getDate()+i); return d;});
-}
-
 export default function Reservations() {
   const navigate = useNavigate();
   const location = useLocation();
-  const today = new Date();
-  const [year, setYear] = useState(today.getFullYear());
-  const [month, setMonth] = useState(today.getMonth());
-  const days = useMemo(() => makeMonth(year, month), [year, month]);
+  const today = new Date().toISOString().slice(0, 10);
 
-  const [selectedDate, setSelectedDate] = useState<Date>(today);
+  const [selectedDate, setSelectedDate] = useState<string>(today);
   const [slot, setSlot] = useState<string | null>(null);
 
   const [user, setUser] = useState<User | null>(null);
@@ -55,8 +46,7 @@ export default function Reservations() {
 
   useEffect(() => {
     if (!serviceId || !selectedDate) return;
-    const dateStr = selectedDate.toISOString().slice(0, 10);
-    getReservationsByDateAndService(dateStr, serviceId).then(reservas => {
+    getReservationsByDateAndService(selectedDate, serviceId).then(reservas => {
       setReservedSlots(reservas.map((r: any) => r.time));
     });
   }, [serviceId, selectedDate]);
@@ -67,9 +57,9 @@ export default function Reservations() {
     if (!canConfirm) return;
     const reservation = {
       serviceId,
-      date: selectedDate.toISOString().slice(0,10),
+      date: selectedDate,
       time: slot || "",
-      status: "confirmed" // Cambiar a "confirmed" para que aparezca en la vista del barbero
+      status: "confirmed"
     };
     try {
       await createReservation(reservation);
@@ -79,9 +69,6 @@ export default function Reservations() {
       alert("Error al crear la reserva");
     }
   }
-
-  function prev(){ const d=new Date(year,month-1,1); setYear(d.getFullYear()); setMonth(d.getMonth()); }
-  function next(){ const d=new Date(year,month+1,1); setYear(d.getFullYear()); setMonth(d.getMonth()); }
 
   return (
     <div>
@@ -106,37 +93,7 @@ export default function Reservations() {
         <h3 className="font-extrabold text-[22px] my-[18px] mx-0">Fecha y Hora</h3>
         <div className="grid grid-cols-[380px_1fr] gap-6">
           {/* Calendar */}
-          <div>
-            <div className="inline-block border border-gray-200 rounded-xl p-2.5">
-              <div className="flex items-center justify-between mb-2">
-                <button className="border border-gray-200 bg-white w-9 h-9 rounded-lg cursor-pointer text-lg hover:bg-gray-50 hover:border-indigo-300 transition-all" onClick={prev}>‹</button>
-                <strong>{new Date(year,month).toLocaleString("es", { month:"long", year:"numeric" })}</strong>
-                <button className="border border-gray-200 bg-white w-9 h-9 rounded-lg cursor-pointer text-lg hover:bg-gray-50 hover:border-indigo-300 transition-all" onClick={next}>›</button>
-              </div>
-              <div className="grid grid-cols-7 gap-2 text-center mb-1.5 text-gray-400">
-                {["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=><div key={d} className="w-full aspect-square grid place-items-center text-sm">{d}</div>)}
-              </div>
-              <div className="grid grid-cols-7 gap-2 text-center">
-                {days.map(d=>{
-                  const isThisMonth = d.getMonth()===month;
-                  const active = d.toDateString()===selectedDate.toDateString();
-                  return (
-                    <button
-                      key={d.toISOString()}
-                      className={`w-full aspect-square grid place-items-center rounded-lg border border-transparent bg-white cursor-pointer text-sm transition-all ${
-                        !isThisMonth ? "text-gray-400" : "text-gray-700"
-                      } ${
-                        active ? "bg-primary text-white font-bold" : "hover:border-indigo-300 hover:bg-blue-50"
-                      }`}
-                      onClick={()=>setSelectedDate(new Date(d))}
-                    >
-                      {d.getDate()}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+          <Calendar selectedDate={selectedDate} onDateSelect={setSelectedDate} />
 
           {/* Slots */}
           <div className="grid grid-cols-4 gap-3">
