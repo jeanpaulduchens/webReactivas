@@ -12,34 +12,37 @@ export interface ReservationData {
   updatedAt: Date;
 }
 
-const reservationSchema = new mongoose.Schema<ReservationData>({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true
+const reservationSchema = new mongoose.Schema<ReservationData>(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    service: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Service",
+      required: true,
+    },
+    date: {
+      type: Date,
+      required: true,
+    },
+    time: {
+      type: String,
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: Object.values(ReservationStatus),
+      default: ReservationStatus.CONFIRMED, // Cambiar default a CONFIRMED
+      required: true,
+    },
   },
-  service: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Service",
-    required: true
+  {
+    timestamps: true, // Agrega createdAt y updatedAt automáticamente
   },
-  date: { 
-    type: Date, 
-    required: true 
-  },
-  time: {
-    type: String,
-    required: true
-  },
-  status: { 
-    type: String, 
-    enum: Object.values(ReservationStatus), 
-    default: ReservationStatus.CONFIRMED, // Cambiar default a CONFIRMED
-    required: true 
-  },
-  }, {
-  timestamps: true // Agrega createdAt y updatedAt automáticamente
-});
+);
 
 reservationSchema.set("toJSON", {
   transform: (
@@ -48,7 +51,7 @@ reservationSchema.set("toJSON", {
       id?: string;
       _id?: mongoose.Types.ObjectId;
       __v?: number;
-    }
+    },
   ) => {
     returnedObject.id = returnedObject._id?.toString();
     delete returnedObject._id;

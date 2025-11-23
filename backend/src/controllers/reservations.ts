@@ -13,8 +13,8 @@ router.get("/", async (req, res) => {
   let filter: any = {};
   if (date) {
     // Parsear la fecha en UTC para evitar problemas de zona horaria
-    const start = new Date((date as string) + 'T00:00:00.000Z');
-    const end = new Date((date as string) + 'T23:59:59.999Z');
+    const start = new Date((date as string) + "T00:00:00.000Z");
+    const end = new Date((date as string) + "T23:59:59.999Z");
     filter.date = { $gte: start, $lte: end };
   }
   if (serviceId) {
@@ -26,55 +26,62 @@ router.get("/", async (req, res) => {
 
 // GET /api/reservations/confirmed-by-day?date=YYYY-MM-DD
 // Endpoint específico para obtener todas las citas confirmadas de un día (para barberos)
-router.get("/confirmed-by-day", withUser, requireRole('barbero'), async (req, res) => {
-  try {
-    const { date } = req.query;
+router.get(
+  "/confirmed-by-day",
+  withUser,
+  requireRole("barbero"),
+  async (req, res) => {
+    try {
+      const { date } = req.query;
 
-    if (!date || typeof date !== 'string') {
-      return res.status(400).json({ error: "Fecha requerida en formato YYYY-MM-DD" });
-    }
-
-    // Parsear la fecha en UTC para evitar problemas de zona horaria
-    // Si date viene como "2025-11-23", crear Date en UTC
-    const start = new Date(date + 'T00:00:00.000Z');
-    const end = new Date(date + 'T23:59:59.999Z');
-
-    const reservations = await Reservation.find({
-      date: { $gte: start, $lte: end },
-      status: ReservationStatus.CONFIRMED
-    })
-    .populate('user', 'name email phone')
-    .populate('service', 'name type description price durationMin')
-    .sort({ time: 1 }); // Ordenar por hora
-
-    // Formatear respuesta para el frontend
-    const formattedReservations = reservations.map((reservation: any) => ({
-      id: reservation.id,
-      date: reservation.date.toISOString().split('T')[0], // Convertir a formato YYYY-MM-DD
-      time: reservation.time,
-      status: reservation.status,
-      client: {
-        id: reservation.user._id,
-        name: reservation.user.name,
-        email: reservation.user.email,
-        phone: reservation.user.phone
-      },
-      service: {
-        id: reservation.service._id,
-        name: reservation.service.name,
-        type: reservation.service.type,
-        description: reservation.service.description,
-        price: reservation.service.price,
-        durationMin: reservation.service.durationMin
+      if (!date || typeof date !== "string") {
+        return res
+          .status(400)
+          .json({ error: "Fecha requerida en formato YYYY-MM-DD" });
       }
-    }));
 
-    res.json(formattedReservations);
-  } catch (error) {
-    console.error("Error obteniendo citas confirmadas:", error);
-    res.status(500).json({ error: "Error interno del servidor" });
-  }
-});
+      // Parsear la fecha en UTC para evitar problemas de zona horaria
+      // Si date viene como "2025-11-23", crear Date en UTC
+      const start = new Date(date + "T00:00:00.000Z");
+      const end = new Date(date + "T23:59:59.999Z");
+
+      const reservations = await Reservation.find({
+        date: { $gte: start, $lte: end },
+        status: ReservationStatus.CONFIRMED,
+      })
+        .populate("user", "name email phone")
+        .populate("service", "name type description price durationMin")
+        .sort({ time: 1 }); // Ordenar por hora
+
+      // Formatear respuesta para el frontend
+      const formattedReservations = reservations.map((reservation: any) => ({
+        id: reservation.id,
+        date: reservation.date.toISOString().split("T")[0], // Convertir a formato YYYY-MM-DD
+        time: reservation.time,
+        status: reservation.status,
+        client: {
+          id: reservation.user._id,
+          name: reservation.user.name,
+          email: reservation.user.email,
+          phone: reservation.user.phone,
+        },
+        service: {
+          id: reservation.service._id,
+          name: reservation.service.name,
+          type: reservation.service.type,
+          description: reservation.service.description,
+          price: reservation.service.price,
+          durationMin: reservation.service.durationMin,
+        },
+      }));
+
+      res.json(formattedReservations);
+    } catch (error) {
+      console.error("Error obteniendo citas confirmadas:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
+    }
+  },
+);
 
 // GET /api/reservations/my-reservations
 // Endpoint para que los clientes vean sus propias reservas
@@ -84,13 +91,13 @@ router.get("/my-reservations", withUser, async (req, res) => {
 
     // Buscar todas las reservas del usuario
     const reservations = await Reservation.find({ user: userId })
-      .populate('service', 'name type description price durationMin')
+      .populate("service", "name type description price durationMin")
       .sort({ date: -1, time: -1 }); // Ordenar por fecha y hora (más recientes primero)
 
     // Formatear respuesta para el frontend
     const formattedReservations = reservations.map((reservation: any) => ({
       id: reservation.id,
-      date: reservation.date.toISOString().split('T')[0], // Convertir a formato YYYY-MM-DD
+      date: reservation.date.toISOString().split("T")[0], // Convertir a formato YYYY-MM-DD
       time: reservation.time,
       status: reservation.status,
       service: {
@@ -99,8 +106,8 @@ router.get("/my-reservations", withUser, async (req, res) => {
         type: reservation.service.type,
         description: reservation.service.description,
         price: reservation.service.price,
-        durationMin: reservation.service.durationMin
-      }
+        durationMin: reservation.service.durationMin,
+      },
     }));
 
     res.json(formattedReservations);
@@ -109,7 +116,6 @@ router.get("/my-reservations", withUser, async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 });
-
 
 // Crear una nueva reserva (requiere autenticación)
 router.post("/", withUser, async (req, res) => {
@@ -129,7 +135,7 @@ router.post("/", withUser, async (req, res) => {
 
     // Parsear la fecha en UTC para evitar problemas de zona horaria
     // Si date viene como "2025-11-25", lo convertimos a Date en UTC
-    const reservationDate = new Date(date + 'T00:00:00.000Z');
+    const reservationDate = new Date(date + "T00:00:00.000Z");
 
     // Crear reserva con el usuario autenticado
     const newReservation = new Reservation({
@@ -137,15 +143,15 @@ router.post("/", withUser, async (req, res) => {
       service: service._id,
       date: reservationDate,
       time,
-      status: status || "confirmed" // Cambiar default a "confirmed" para que aparezcan en la vista del barbero
+      status: status || "confirmed", // Cambiar default a "confirmed" para que aparezcan en la vista del barbero
     });
     const savedReservation = await newReservation.save();
-    
+
     // Actualizar el array de reservations del usuario
     await User.findByIdAndUpdate(userId, {
-      $push: { reservations: savedReservation._id }
+      $push: { reservations: savedReservation._id },
     });
-    
+
     res.status(201).json(savedReservation);
   } catch (error) {
     res.status(400).json({ error: error });
@@ -167,7 +173,9 @@ router.put("/:id", withUser, async (req, res) => {
 
     // Verificar que el usuario es el dueño de la reserva
     if (reservation.user.toString() !== userId) {
-      return res.status(403).json({ error: "No tienes permiso para editar esta reserva" });
+      return res
+        .status(403)
+        .json({ error: "No tienes permiso para editar esta reserva" });
     }
 
     // Actualizar campos si se proporcionan
@@ -180,7 +188,7 @@ router.put("/:id", withUser, async (req, res) => {
     }
     if (date) {
       // Parsear la fecha en UTC
-      reservation.date = new Date(date + 'T00:00:00.000Z');
+      reservation.date = new Date(date + "T00:00:00.000Z");
     }
     if (time) reservation.time = time;
     if (status) reservation.status = status;
@@ -206,7 +214,9 @@ router.delete("/:id", withUser, async (req, res) => {
 
     // Verificar que el usuario es el dueño de la reserva
     if (reservation.user.toString() !== userId) {
-      return res.status(403).json({ error: "No tienes permiso para eliminar esta reserva" });
+      return res
+        .status(403)
+        .json({ error: "No tienes permiso para eliminar esta reserva" });
     }
 
     await Reservation.findByIdAndDelete(id);

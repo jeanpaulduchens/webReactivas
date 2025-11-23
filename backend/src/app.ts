@@ -16,15 +16,15 @@ const app = express();
 mongoose.set("strictQuery", false);
 
 if (config.MONGODB_URI) {
-  mongoose.connect(config.MONGODB_URI, { dbName: config.MONGODB_DBNAME })
-  .then(async () => {
-    await seedServices();
-  })
-  .catch((error) => {
-    logger.error("Error connecting to MongoDB:", error.message);
-  });
+  mongoose
+    .connect(config.MONGODB_URI, { dbName: config.MONGODB_DBNAME })
+    .then(async () => {
+      await seedServices();
+    })
+    .catch((error) => {
+      logger.error("Error connecting to MongoDB:", error.message);
+    });
 }
-
 
 app.use(express.static("dist"));
 app.use(express.json());

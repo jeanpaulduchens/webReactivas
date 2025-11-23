@@ -6,25 +6,30 @@ import { withUser, requireRole } from "../utils/middleware";
 const router = express.Router();
 
 // GET /api/users - Obtener todos los usuarios (solo admin)
-router.get("/", withUser, requireRole('admin'), async (request: Request, response: Response) => {
-  const users = await User.find({}).populate("reservations");
-  response.json(users);
-});
+router.get(
+  "/",
+  withUser,
+  requireRole("admin"),
+  async (request: Request, response: Response) => {
+    const users = await User.find({}).populate("reservations");
+    response.json(users);
+  },
+);
 
 // POST /api/users - Registro público (solo puede crear clientes)
 router.post("/", async (request: Request, response: Response) => {
   const { username, name, email, password, phone, role } = request.body;
 
   // Validar que el rol no sea admin o barbero (solo clientes pueden registrarse públicamente)
-  if (role && (role === 'admin' || role === 'barbero')) {
-    return response.status(403).json({ 
-      error: "No puedes registrarte con este rol. Contacta a un administrador." 
+  if (role && (role === "admin" || role === "barbero")) {
+    return response.status(403).json({
+      error: "No puedes registrarte con este rol. Contacta a un administrador.",
     });
   }
 
   if (!password || password.length < 3) {
-    return response.status(400).json({ 
-      error: "password must be at least 3 characters long" 
+    return response.status(400).json({
+      error: "password must be at least 3 characters long",
     });
   }
 
@@ -37,7 +42,7 @@ router.post("/", async (request: Request, response: Response) => {
     email,
     passwordHash,
     phone,
-    role: 'cliente' // Siempre cliente para registro público
+    role: "cliente", // Siempre cliente para registro público
   });
 
   try {
@@ -47,8 +52,8 @@ router.post("/", async (request: Request, response: Response) => {
     if (error.code === 11000) {
       // Error de duplicado
       const field = Object.keys(error.keyPattern)[0];
-      return response.status(400).json({ 
-        error: `${field} already exists` 
+      return response.status(400).json({
+        error: `${field} already exists`,
       });
     }
     response.status(400).json({ error: error.message });
@@ -59,24 +64,25 @@ router.post("/", async (request: Request, response: Response) => {
 router.post("/first-admin", async (request: Request, response: Response) => {
   try {
     // Verificar si ya existe un admin
-    const existingAdmin = await User.findOne({ role: 'admin' });
+    const existingAdmin = await User.findOne({ role: "admin" });
     if (existingAdmin) {
-      return response.status(403).json({ 
-        error: "Ya existe un administrador en el sistema. Usa /api/users/admin para crear más." 
+      return response.status(403).json({
+        error:
+          "Ya existe un administrador en el sistema. Usa /api/users/admin para crear más.",
       });
     }
 
     const { username, name, email, password, phone } = request.body;
 
     if (!password || password.length < 3) {
-      return response.status(400).json({ 
-        error: "password must be at least 3 characters long" 
+      return response.status(400).json({
+        error: "password must be at least 3 characters long",
       });
     }
 
     if (!username || !name || !email) {
-      return response.status(400).json({ 
-        error: "username, name, and email are required" 
+      return response.status(400).json({
+        error: "username, name, and email are required",
       });
     }
 
@@ -89,7 +95,7 @@ router.post("/first-admin", async (request: Request, response: Response) => {
       email,
       passwordHash,
       phone,
-      role: 'admin' // Siempre admin para este endpoint
+      role: "admin", // Siempre admin para este endpoint
     });
 
     const savedUser = await user.save();
@@ -97,8 +103,8 @@ router.post("/first-admin", async (request: Request, response: Response) => {
   } catch (error: any) {
     if (error.code === 11000) {
       const field = Object.keys(error.keyPattern)[0];
-      return response.status(400).json({ 
-        error: `${field} already exists` 
+      return response.status(400).json({
+        error: `${field} already exists`,
       });
     }
     response.status(400).json({ error: error.message });
@@ -106,55 +112,60 @@ router.post("/first-admin", async (request: Request, response: Response) => {
 });
 
 // POST /api/users/admin - Crear usuario (solo admin puede crear barberos y otros admins)
-router.post("/admin", withUser, requireRole('admin'), async (request: Request, response: Response) => {
-  const { username, name, email, password, phone, role } = request.body;
+router.post(
+  "/admin",
+  withUser,
+  requireRole("admin"),
+  async (request: Request, response: Response) => {
+    const { username, name, email, password, phone, role } = request.body;
 
-  // Validar que se proporcione un rol válido
-  const validRoles = ['cliente', 'barbero', 'admin'];
-  if (!role || !validRoles.includes(role)) {
-    return response.status(400).json({ 
-      error: "role is required and must be one of: cliente, barbero, admin" 
-    });
-  }
-
-  if (!password || password.length < 3) {
-    return response.status(400).json({ 
-      error: "password must be at least 3 characters long" 
-    });
-  }
-
-  // Validar campos requeridos
-  if (!username || !name || !email) {
-    return response.status(400).json({ 
-      error: "username, name, and email are required" 
-    });
-  }
-
-  const saltRounds = 10;
-  const passwordHash = await bcrypt.hash(password, saltRounds);
-
-  const user = new User({
-    username,
-    name,
-    email,
-    passwordHash,
-    phone,
-    role
-  });
-
-  try {
-    const savedUser = await user.save();
-    response.status(201).json(savedUser); // toJSON elimina passwordHash automáticamente
-  } catch (error: any) {
-    if (error.code === 11000) {
-      // Error de duplicado
-      const field = Object.keys(error.keyPattern)[0];
-      return response.status(400).json({ 
-        error: `${field} already exists` 
+    // Validar que se proporcione un rol válido
+    const validRoles = ["cliente", "barbero", "admin"];
+    if (!role || !validRoles.includes(role)) {
+      return response.status(400).json({
+        error: "role is required and must be one of: cliente, barbero, admin",
       });
     }
-    response.status(400).json({ error: error.message });
-  }
-});
+
+    if (!password || password.length < 3) {
+      return response.status(400).json({
+        error: "password must be at least 3 characters long",
+      });
+    }
+
+    // Validar campos requeridos
+    if (!username || !name || !email) {
+      return response.status(400).json({
+        error: "username, name, and email are required",
+      });
+    }
+
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+
+    const user = new User({
+      username,
+      name,
+      email,
+      passwordHash,
+      phone,
+      role,
+    });
+
+    try {
+      const savedUser = await user.save();
+      response.status(201).json(savedUser); // toJSON elimina passwordHash automáticamente
+    } catch (error: any) {
+      if (error.code === 11000) {
+        // Error de duplicado
+        const field = Object.keys(error.keyPattern)[0];
+        return response.status(400).json({
+          error: `${field} already exists`,
+        });
+      }
+      response.status(400).json({ error: error.message });
+    }
+  },
+);
 
 export default router;
