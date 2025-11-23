@@ -1,14 +1,23 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { logout } from '@api/login';
+import { useAuthStore, useReservationsStore } from '../stores';
 
 export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const isLoggedIn = !!localStorage.getItem('csrfToken');
+  const { isAuthenticated, logout } = useAuthStore();
+  const { clearClientReservations, clearBarberReservations } = useReservationsStore();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
+  const handleLogout = async () => {
+    // Limpiar las reservas del store
+    clearClientReservations();
+    clearBarberReservations();
+    
+    // Hacer logout
+    await logout();
+    
+    // Navegar al home y forzar recarga completa para limpiar todo el estado
+    navigate('/');
+    window.location.reload();
   };
 
   return (
@@ -43,7 +52,7 @@ export default function Layout() {
           >
             Mis reservas
           </button>
-          {isLoggedIn ? (
+          {isAuthenticated ? (
             <button onClick={handleLogout}>
               Cerrar Sesión
             </button>

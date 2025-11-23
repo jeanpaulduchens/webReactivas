@@ -1,13 +1,22 @@
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../stores';
+import { useAuthStore, useReservationsStore } from '../stores';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuthStore();
+  const { clearClientReservations, clearBarberReservations } = useReservationsStore();
 
   const handleLogout = async () => {
+    // Limpiar las reservas del store
+    clearClientReservations();
+    clearBarberReservations();
+    
+    // Hacer logout
     await logout();
-    navigate('/login');
+    
+    // Navegar al home y forzar recarga completa para limpiar todo el estado
+    navigate('/');
+    window.location.reload();
   };
 
   return (

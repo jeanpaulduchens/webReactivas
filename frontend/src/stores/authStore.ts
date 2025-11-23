@@ -63,6 +63,8 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         try {
           await logout();
+          
+          // Limpiar el estado de autenticación
           set({
             user: null,
             csrfToken: null,
@@ -70,6 +72,10 @@ export const useAuthStore = create<AuthState>()(
             isLoading: false,
             error: null,
           });
+          
+          // Limpiar el localStorage de Zustand persist
+          localStorage.removeItem('auth-storage');
+          
         } catch (err) {
           // Incluso si falla el logout en el servidor, limpiamos el estado local
           set({
@@ -79,6 +85,9 @@ export const useAuthStore = create<AuthState>()(
             isLoading: false,
             error: null,
           });
+          
+          // Limpiar el localStorage de Zustand persist
+          localStorage.removeItem('auth-storage');
         }
       },
 
