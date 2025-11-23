@@ -1,4 +1,3 @@
-import 'module-alias/register';
 import express, { NextFunction, Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import logger from "@utils/logger";
