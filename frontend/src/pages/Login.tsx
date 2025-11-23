@@ -34,11 +34,11 @@ export default function Login() {
 
   return (
     <div>
-      <h2 className="section-title">BarberConnect - Barber Login</h2>
+      <h2 className="section-title">BarberBook - Barber Login</h2>
 
       <div className="login-wrap">
         <div className="login-card">
-          <div className="login-brand">BarberConnect</div>
+          <div className="login-brand">BarberBook</div>
           <div className="login-title">Iniciar Sesión</div>
 
           <form onSubmit={handleLogin}>
@@ -97,7 +97,16 @@ export default function Login() {
 
           <p className="help login-help">
             ¿Olvidaste tu contraseña? <a href="#!">Restablecer aquí</a><br/>
-            ¿No tienes una cuenta? <a href="#!">Regístrate</a>
+            ¿No tienes una cuenta?{" "}
+            <a 
+              href="/register" 
+              onClick={(e) => {
+                e.preventDefault();
+                navigate('/register');
+              }}
+            >
+              Regístrate
+            </a>
           </p>
 
           <button className="btn login-back" onClick={() => navigate(-1)}>← Volver</button>

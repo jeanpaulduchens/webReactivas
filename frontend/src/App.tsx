@@ -4,6 +4,7 @@ import Services from './pages/Services';
 import Reservations from './pages/Reserve';
 import MyBookings from './pages/MyReserve';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import ProtectedRoute from './components/ProtectedRoute';
 import './style.css';
 
@@ -14,6 +15,7 @@ function App() {
         {/* Rutas públicas */}
         <Route index element={<Services />} />
         <Route path="login" element={<Login />} />
+        <Route path="register" element={<Register />} />
         
         {/* Rutas protegidas */}
         <Route 

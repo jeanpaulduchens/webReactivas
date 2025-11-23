@@ -45,7 +45,7 @@ export default function Layout() {
           </button>
           {isLoggedIn ? (
             <button onClick={handleLogout}>
-              Logout
+              Cerrar Sesión
             </button>
           ) : (
             <button 
@@ -54,7 +54,7 @@ export default function Layout() {
                 fontWeight: location.pathname === '/login' ? 'bold' : 'normal' 
               }}
             >
-              Login
+              Iniciar Sesión
             </button>
           )}
         </nav>

@@ -227,3 +227,71 @@ body{
 .actions-group{ display:flex; gap:12px; margin-top:18px; }
 .slot:disabled{ opacity:0.5; cursor:not-allowed; }
 .cal-grid-days{ margin-bottom:6px; color:#9ca3af; }
+
+/* Login & Register */
+.btn-login{ 
+  width:100%; 
+  border:0; 
+  border-radius:10px; 
+  height:44px; 
+  font-weight:700; 
+  background:var(--primary); 
+  color:#fff; 
+  cursor:pointer; 
+  margin-top:14px; 
+}
+.btn-login:hover{ background:var(--primary-600); }
+.btn-login:disabled{ opacity:0.6; cursor:not-allowed; }
+
+.show-password-btn{
+  position:absolute;
+  right:10px;
+  top:50%;
+  transform:translateY(-50%);
+  background:none;
+  border:none;
+  cursor:pointer;
+  font-size:18px;
+  padding:0;
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+}
+
+.error-message{
+  color:#dc2626;
+  background:#fee2e2;
+  padding:10px 14px;
+  border-radius:8px;
+  margin-bottom:14px;
+  font-size:14px;
+  border:1px solid #fca5a5;
+}
+
+.success-message{
+  color:#16a34a;
+  background:#dcfce7;
+  padding:10px 14px;
+  border-radius:8px;
+  margin-bottom:14px;
+  font-size:14px;
+  border:1px solid #86efac;
+}
+
+.login-footer{
+  text-align:center;
+  margin-top:18px;
+  font-size:14px;
+  color:#6b7280;
+}
+
+.login-footer a{
+  color:var(--primary);
+  font-weight:600;
+  text-decoration:none;
+}
+
+.login-footer a:hover{
+  text-decoration:underline;
+}

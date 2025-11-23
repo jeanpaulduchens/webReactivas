@@ -29,7 +29,7 @@ router.post("/", async (request: Request, response: Response) => {
     email,
     passwordHash,
     phone,
-    role: role || 'cliente' // Default: cliente
+    role: role || 'cliente' // Default: cliente si no se especifica
   });
 
   const savedUser = await user.save();
