@@ -89,18 +89,18 @@ export default function AdminUsers() {
 
   return (
     <div>
-      <h2 className="section-title">Administración de Usuarios</h2>
+      <h2 className="text-lg font-black my-4">Administración de Usuarios</h2>
 
-      <div className="panel pad">
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+      <div className="bg-white rounded-card shadow-card p-6">
+        <div className="flex justify-between items-center mb-6">
           <div>
-            <h3 className="page-title">Gestión de Usuarios</h3>
-            <p className="description-text">
+            <h3 className="text-xl font-bold mb-2">Gestión de Usuarios</h3>
+            <p className="text-sm text-muted">
               Como administrador, puedes crear y gestionar usuarios del sistema.
             </p>
           </div>
           <button 
-            className="btn primary" 
+            className="px-4 py-2 rounded-xl font-bold bg-primary text-white hover:bg-primary-600 transition" 
             onClick={() => {
               setShowForm(!showForm);
               clearError();
@@ -113,46 +113,29 @@ export default function AdminUsers() {
 
         {/* Mensajes de éxito y error */}
         {successMessage && (
-          <div style={{ 
-            padding: "12px", 
-            background: "#d1fae5", 
-            color: "#065f46", 
-            borderRadius: "8px", 
-            marginBottom: "16px" 
-          }}>
+          <div className="p-3 bg-emerald-100 text-emerald-800 rounded-xl mb-4">
             {successMessage}
           </div>
         )}
 
         {error && (
-          <div style={{ 
-            padding: "12px", 
-            background: "#fee2e2", 
-            color: "#991b1b", 
-            borderRadius: "8px", 
-            marginBottom: "16px" 
-          }}>
+          <div className="p-3 bg-red-100 text-red-800 rounded-xl mb-4">
             {error}
           </div>
         )}
 
         {/* Formulario de creación */}
         {showForm && (
-          <div style={{ 
-            padding: "24px", 
-            background: "#f9fafb", 
-            borderRadius: "12px", 
-            marginBottom: "24px" 
-          }}>
-            <h4 style={{ marginBottom: "16px", fontSize: "18px", fontWeight: 600 }}>
+          <div className="p-6 bg-gray-50 rounded-xl mb-6">
+            <h4 className="mb-4 text-lg font-semibold">
               Crear Nuevo Usuario
             </h4>
             <form onSubmit={handleSubmit}>
-              <div className="form-grid">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="label">Usuario</label>
+                  <label className="block text-sm font-medium mb-2">Usuario</label>
                   <input
-                    className="input"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
                     type="text"
                     name="username"
                     value={formData.username}
@@ -162,9 +145,9 @@ export default function AdminUsers() {
                   />
                 </div>
                 <div>
-                  <label className="label">Nombre Completo</label>
+                  <label className="block text-sm font-medium mb-2">Nombre Completo</label>
                   <input
-                    className="input"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
                     type="text"
                     name="name"
                     value={formData.name}
@@ -174,9 +157,9 @@ export default function AdminUsers() {
                   />
                 </div>
                 <div>
-                  <label className="label">Email</label>
+                  <label className="block text-sm font-medium mb-2">Email</label>
                   <input
-                    className="input"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
                     type="email"
                     name="email"
                     value={formData.email}
@@ -186,9 +169,9 @@ export default function AdminUsers() {
                   />
                 </div>
                 <div>
-                  <label className="label">Teléfono (Opcional)</label>
+                  <label className="block text-sm font-medium mb-2">Teléfono (Opcional)</label>
                   <input
-                    className="input"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
                     type="tel"
                     name="phone"
                     value={formData.phone}
@@ -197,9 +180,9 @@ export default function AdminUsers() {
                   />
                 </div>
                 <div>
-                  <label className="label">Contraseña</label>
+                  <label className="block text-sm font-medium mb-2">Contraseña</label>
                   <input
-                    className="input"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
                     type="password"
                     name="password"
                     value={formData.password}
@@ -210,9 +193,9 @@ export default function AdminUsers() {
                   />
                 </div>
                 <div>
-                  <label className="label">Rol</label>
+                  <label className="block text-sm font-medium mb-2">Rol</label>
                   <select
-                    className="select"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
                     name="role"
                     value={formData.role}
                     onChange={handleInputChange}
@@ -224,13 +207,13 @@ export default function AdminUsers() {
                   </select>
                 </div>
               </div>
-              <div style={{ marginTop: "16px", display: "flex", gap: "12px" }}>
-                <button type="submit" className="btn primary" disabled={loading}>
+              <div className="mt-4 flex gap-3">
+                <button type="submit" className="px-4 py-2 rounded-xl font-bold bg-primary text-white hover:bg-primary-600 transition" disabled={loading}>
                   {loading ? "Creando..." : "Crear Usuario"}
                 </button>
                 <button
                   type="button"
-                  className="btn"
+                  className="px-4 py-2 rounded-xl font-bold bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
                   onClick={() => {
                     setShowForm(false);
                     clearError();
@@ -246,79 +229,70 @@ export default function AdminUsers() {
 
         {/* Lista de usuarios */}
         <div>
-          <h4 style={{ marginBottom: "16px", fontSize: "18px", fontWeight: 600 }}>
+          <h4 className="mb-4 text-lg font-semibold">
             Usuarios del Sistema ({users.length})
           </h4>
 
           {loading && !users.length && (
-            <div className="loading-message">Cargando usuarios...</div>
+            <div className="p-6 text-center text-muted">Cargando usuarios...</div>
           )}
 
           {!loading && users.length === 0 && (
-            <div style={{ 
-              padding: "24px", 
-              textAlign: "center", 
-              color: "#6b7280" 
-            }}>
+            <div className="p-6 text-center text-muted">
               No hay usuarios registrados aún.
             </div>
           )}
 
           {users.length > 0 && (
-            <table className="reservations-table">
-              <thead>
-                <tr>
-                  <th>Usuario</th>
-                  <th>Nombre</th>
-                  <th>Email</th>
-                  <th>Teléfono</th>
-                  <th>Rol</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((u) => {
-                  const badgeStyle = getRoleBadgeColor(u.role || "cliente");
-                  return (
-                    <tr key={u.id}>
-                      <td>
-                        <strong>{u.username}</strong>
-                        {u.id === user?.id && (
-                          <span style={{ 
-                            marginLeft: "8px", 
-                            fontSize: "12px", 
-                            color: "#6b7280" 
-                          }}>
-                            (Tú)
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b-2 border-gray-200">
+                    <th className="text-left p-3 font-semibold">Usuario</th>
+                    <th className="text-left p-3 font-semibold">Nombre</th>
+                    <th className="text-left p-3 font-semibold">Email</th>
+                    <th className="text-left p-3 font-semibold">Teléfono</th>
+                    <th className="text-left p-3 font-semibold">Rol</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((u) => {
+                    const badgeStyle = getRoleBadgeColor(u.role || "cliente");
+                    return (
+                      <tr key={u.id} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="p-3">
+                          <strong>{u.username}</strong>
+                          {u.id === user?.id && (
+                            <span className="ml-2 text-xs text-muted">
+                              (Tú)
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-3">{u.name}</td>
+                        <td className="p-3">{u.email}</td>
+                        <td className="p-3">{u.phone || "-"}</td>
+                        <td className="p-3">
+                          <span
+                            className="px-3 py-1 rounded-full text-xs font-semibold inline-block"
+                            style={{
+                              background: badgeStyle.bg,
+                              color: badgeStyle.text,
+                            }}
+                          >
+                            {u.role?.toUpperCase() || "CLIENTE"}
                           </span>
-                        )}
-                      </td>
-                      <td>{u.name}</td>
-                      <td>{u.email}</td>
-                      <td>{u.phone || "-"}</td>
-                      <td>
-                        <span
-                          style={{
-                            padding: "4px 12px",
-                            borderRadius: "12px",
-                            fontSize: "12px",
-                            fontWeight: 600,
-                            background: badgeStyle.bg,
-                            color: badgeStyle.text,
-                          }}
-                        >
-                          {u.role?.toUpperCase() || "CLIENTE"}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
 
-        <div className="actions-row" style={{ marginTop: "24px" }}>
-          <button className="btn" onClick={() => navigate(-1)}>
+        <div className="mt-6">
+          <button className="px-4 py-2 rounded-xl font-bold bg-gray-200 text-gray-700 hover:bg-gray-300 transition" onClick={() => navigate(-1)}>
             ← Volver
           </button>
         </div>
