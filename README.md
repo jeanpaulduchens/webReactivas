@@ -121,7 +121,9 @@ npm start
 
 ### Usuarios
 
-#### Crear Usuario (Registro)
+#### Crear Usuario (Registro Público - Solo Clientes)
+
+Este endpoint solo permite crear usuarios con rol `cliente`. Para crear barberos o admins, usar el endpoint `/api/users/admin`.
 
 ```bash
 curl -X POST http://localhost:3001/api/users \
@@ -131,15 +133,58 @@ curl -X POST http://localhost:3001/api/users \
     "name": "Juan Pérez",
     "email": "juan@mail.com",
     "password": "password123",
+    "phone": "123456789"
+  }'
+```
+
+**Nota:** El rol siempre será `cliente` para este endpoint, incluso si se intenta especificar otro rol.
+
+#### Crear el Primer Administrador
+
+Este endpoint solo funciona si NO existe ningún admin en el sistema. Úsalo para crear el primer administrador.
+
+```bash
+curl -X POST http://localhost:3001/api/users/first-admin \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "admin1",
+    "name": "Administrador Principal",
+    "email": "admin@mail.com",
+    "password": "password123",
+    "phone": "123456789"
+  }'
+```
+
+**Nota:** Este endpoint solo funciona una vez. Después de crear el primer admin, debes usar `/api/users/admin` con autenticación.
+
+#### Crear Usuario como Admin (Requiere Autenticación Admin)
+
+Este endpoint permite a los administradores crear usuarios con cualquier rol (cliente, barbero, admin).
+
+```bash
+curl -X POST http://localhost:3001/api/users/admin \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "X-CSRF-Token: TU_CSRF_TOKEN" \
+  -d '{
+    "username": "barbero1",
+    "name": "Barbero Ejemplo",
+    "email": "barbero@mail.com",
+    "password": "password123",
     "phone": "123456789",
-    "role": "cliente"
+    "role": "barbero"
   }'
 ```
 
 **Roles disponibles:**
 - `cliente` - Usuario regular que puede hacer reservas
-- `barbero` - Barbero que atiende reservas
-- `admin` - Administrador del sistema
+- `barbero` - Barbero que atiende reservas (solo puede ser creado por admin)
+- `admin` - Administrador del sistema (solo puede ser creado por otro admin)
+
+**Requisitos:**
+- Debes estar autenticado como `admin`
+- El token JWT debe estar en las cookies
+- El CSRF token debe estar en el header `X-CSRF-Token`
 
 #### Login
 

@@ -6,7 +6,7 @@ export interface UserData {
   name: string;
   email: string;
   passwordHash: string;
-  role: 'cliente' | 'barbero';
+  role: 'cliente' | 'barbero' | 'admin';
   phone?: string;
   reservations?: mongoose.Types.ObjectId[]; // clientes
   createdAt: Date;
@@ -35,7 +35,7 @@ const userSchema = new mongoose.Schema<UserData>({
   },
   role: {
     type: String,
-    enum: ['cliente', 'barbero'],
+    enum: ['cliente', 'barbero', 'admin'],
     default: 'cliente',
     required: true
   },

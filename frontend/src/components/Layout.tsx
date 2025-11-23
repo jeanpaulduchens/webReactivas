@@ -4,7 +4,7 @@ import { useAuthStore, useReservationsStore } from '../stores';
 export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, logout } = useAuthStore();
+  const { isAuthenticated, user, logout } = useAuthStore();
   const { clearClientReservations, clearBarberReservations } = useReservationsStore();
 
   const handleLogout = async () => {
@@ -52,6 +52,20 @@ export default function Layout() {
           >
             Mis reservas
           </button>
+          {isAuthenticated && user?.role === 'admin' && (
+            <button 
+              onClick={() => navigate('/admin/usuarios')}
+              style={{ 
+                fontWeight: location.pathname === '/admin/usuarios' ? 'bold' : 'normal',
+                background: '#dc2626',
+                color: '#fff',
+                padding: '0.5rem 1rem',
+                borderRadius: '6px'
+              }}
+            >
+              Administración
+            </button>
+          )}
           {isAuthenticated ? (
             <button onClick={handleLogout}>
               Cerrar Sesión

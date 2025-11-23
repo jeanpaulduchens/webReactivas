@@ -31,6 +31,15 @@ export default function Navbar() {
       
       {isAuthenticated && user && (
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {user.role === 'admin' && (
+            <button 
+              className="btn" 
+              onClick={() => navigate('/admin/usuarios')}
+              style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', background: '#dc2626', color: '#fff' }}
+            >
+              Administración
+            </button>
+          )}
           <span style={{ color: '#9ca3af' }}>Hola, {user.name}</span>
           <button 
             className="btn" 
