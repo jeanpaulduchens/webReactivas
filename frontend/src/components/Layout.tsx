@@ -22,8 +22,8 @@ export default function Layout() {
 
   return (
     <div className="max-w-[1150px] mx-auto p-6">
-      <div className="h-[60px] flex items-center gap-3">
-        <button className="font-extrabold text-primary" onClick={() => navigate('/')}>
+      <div className="h-15 flex items-center gap-3">
+        <button className="font-black text-primary" onClick={() => navigate('/')}>
           BarberBook
         </button>
         <span className="text-gray-400">/</span>

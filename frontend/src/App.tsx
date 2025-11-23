@@ -6,7 +6,6 @@ import MyBookings from './pages/MyReserve';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ProtectedRoute from './components/ProtectedRoute';
-import './style.css';
 
 function App() {
   return (
