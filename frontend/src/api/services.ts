@@ -23,12 +23,15 @@ export async function createService(service: {
   return response.data;
 }
 
-export async function updateService(id: string, service: {
-  name: string;
-  description: string;
-  durationMin: number;
-  price: number;
-}) {
+export async function updateService(
+  id: string,
+  service: {
+    name: string;
+    description: string;
+    durationMin: number;
+    price: number;
+  },
+) {
   const response = await axios.put(`${baseUrl}/${id}`, service);
   return response.data;
 }

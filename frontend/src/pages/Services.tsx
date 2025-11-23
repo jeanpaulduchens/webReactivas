@@ -8,7 +8,7 @@ import type { Service } from "../types";
 export default function Services() {
   const [services, setServices] = useState<Service[]>([]);
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     getAllServices().then((data) => {
       setServices(data);
@@ -17,9 +17,9 @@ export default function Services() {
 
   function handleReserve(service: Service) {
     // Navegar a la vista de reservas pasando el servicio seleccionado
-    navigate('/reservas', { state: { selectedService: service } });
+    navigate("/reservas", { state: { selectedService: service } });
   }
-  
+
   console.log(services);
   return (
     <>

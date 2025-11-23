@@ -6,15 +6,15 @@ import type { CreateUserData } from "../api/users";
 export default function AdminUsers() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { 
-    users, 
-    loading, 
-    error, 
+  const {
+    users,
+    loading,
+    error,
     successMessage,
-    fetchUsers, 
-    createUser, 
-    clearError, 
-    clearSuccess 
+    fetchUsers,
+    createUser,
+    clearError,
+    clearSuccess,
   } = useUsersStore();
 
   const [formData, setFormData] = useState<CreateUserData>({
@@ -43,7 +43,9 @@ export default function AdminUsers() {
     }
   }, [successMessage, clearSuccess]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -99,8 +101,8 @@ export default function AdminUsers() {
               Como administrador, puedes crear y gestionar usuarios del sistema.
             </p>
           </div>
-          <button 
-            className="px-4 py-2 rounded-xl font-bold bg-primary text-white hover:bg-primary-600 transition" 
+          <button
+            className="px-4 py-2 rounded-xl font-bold bg-primary text-white hover:bg-primary-600 transition"
             onClick={() => {
               setShowForm(!showForm);
               clearError();
@@ -127,13 +129,13 @@ export default function AdminUsers() {
         {/* Formulario de creación */}
         {showForm && (
           <div className="p-6 bg-gray-50 rounded-xl mb-6">
-            <h4 className="mb-4 text-lg font-semibold">
-              Crear Nuevo Usuario
-            </h4>
+            <h4 className="mb-4 text-lg font-semibold">Crear Nuevo Usuario</h4>
             <form onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Usuario</label>
+                  <label className="block text-sm font-medium mb-2">
+                    Usuario
+                  </label>
                   <input
                     className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
                     type="text"
@@ -145,7 +147,9 @@ export default function AdminUsers() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Nombre Completo</label>
+                  <label className="block text-sm font-medium mb-2">
+                    Nombre Completo
+                  </label>
                   <input
                     className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
                     type="text"
@@ -157,7 +161,9 @@ export default function AdminUsers() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Email</label>
+                  <label className="block text-sm font-medium mb-2">
+                    Email
+                  </label>
                   <input
                     className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
                     type="email"
@@ -169,7 +175,9 @@ export default function AdminUsers() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Teléfono (Opcional)</label>
+                  <label className="block text-sm font-medium mb-2">
+                    Teléfono (Opcional)
+                  </label>
                   <input
                     className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
                     type="tel"
@@ -180,7 +188,9 @@ export default function AdminUsers() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Contraseña</label>
+                  <label className="block text-sm font-medium mb-2">
+                    Contraseña
+                  </label>
                   <input
                     className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
                     type="password"
@@ -208,7 +218,11 @@ export default function AdminUsers() {
                 </div>
               </div>
               <div className="mt-4 flex gap-3">
-                <button type="submit" className="px-4 py-2 rounded-xl font-bold bg-primary text-white hover:bg-primary-600 transition" disabled={loading}>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl font-bold bg-primary text-white hover:bg-primary-600 transition"
+                  disabled={loading}
+                >
                   {loading ? "Creando..." : "Crear Usuario"}
                 </button>
                 <button
@@ -234,7 +248,9 @@ export default function AdminUsers() {
           </h4>
 
           {loading && !users.length && (
-            <div className="p-6 text-center text-muted">Cargando usuarios...</div>
+            <div className="p-6 text-center text-muted">
+              Cargando usuarios...
+            </div>
           )}
 
           {!loading && users.length === 0 && (
@@ -259,7 +275,10 @@ export default function AdminUsers() {
                   {users.map((u) => {
                     const badgeStyle = getRoleBadgeColor(u.role || "cliente");
                     return (
-                      <tr key={u.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <tr
+                        key={u.id}
+                        className="border-b border-gray-100 hover:bg-gray-50"
+                      >
                         <td className="p-3">
                           <strong>{u.username}</strong>
                           {u.id === user?.id && (
@@ -292,7 +311,10 @@ export default function AdminUsers() {
         </div>
 
         <div className="mt-6">
-          <button className="px-4 py-2 rounded-xl font-bold bg-gray-200 text-gray-700 hover:bg-gray-300 transition" onClick={() => navigate(-1)}>
+          <button
+            className="px-4 py-2 rounded-xl font-bold bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
+            onClick={() => navigate(-1)}
+          >
             ← Volver
           </button>
         </div>
@@ -300,4 +322,3 @@ export default function AdminUsers() {
     </div>
   );
 }
-

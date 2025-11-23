@@ -1,7 +1,7 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { login, logout, restoreLogin } from '../api/login';
-import type { User, LoginCredentials } from '../types';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { login, logout, restoreLogin } from "../api/login";
+import type { User, LoginCredentials } from "../types";
 
 interface AuthState {
   // Estado
@@ -34,10 +34,10 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         try {
           const userData = await login(credentials);
-          
+
           // Obtener el token CSRF del localStorage (se guarda en login())
-          const csrfToken = localStorage.getItem('csrfToken');
-          
+          const csrfToken = localStorage.getItem("csrfToken");
+
           set({
             user: userData,
             csrfToken,
@@ -46,7 +46,8 @@ export const useAuthStore = create<AuthState>()(
             error: null,
           });
         } catch (err: any) {
-          const errorMessage = err.response?.data?.error || 'Error al iniciar sesión';
+          const errorMessage =
+            err.response?.data?.error || "Error al iniciar sesión";
           set({
             error: errorMessage,
             isLoading: false,
@@ -63,7 +64,7 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         try {
           await logout();
-          
+
           // Limpiar el estado de autenticación
           set({
             user: null,
@@ -72,10 +73,9 @@ export const useAuthStore = create<AuthState>()(
             isLoading: false,
             error: null,
           });
-          
+
           // Limpiar el localStorage de Zustand persist
-          localStorage.removeItem('auth-storage');
-          
+          localStorage.removeItem("auth-storage");
         } catch (err) {
           // Incluso si falla el logout en el servidor, limpiamos el estado local
           set({
@@ -85,22 +85,22 @@ export const useAuthStore = create<AuthState>()(
             isLoading: false,
             error: null,
           });
-          
+
           // Limpiar el localStorage de Zustand persist
-          localStorage.removeItem('auth-storage');
+          localStorage.removeItem("auth-storage");
         }
       },
 
       // Restaurar sesión desde localStorage
       restoreSession: async () => {
-        const csrfToken = localStorage.getItem('csrfToken');
-        const userDataStr = localStorage.getItem('userData');
-        
+        const csrfToken = localStorage.getItem("csrfToken");
+        const userDataStr = localStorage.getItem("userData");
+
         if (csrfToken && userDataStr) {
           try {
             // Verificar que la sesión sigue siendo válida
             const currentUser = await restoreLogin();
-            
+
             if (currentUser) {
               set({
                 user: currentUser,
@@ -151,13 +151,12 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'auth-storage', // nombre para localStorage
+      name: "auth-storage", // nombre para localStorage
       partialize: (state) => ({
         user: state.user,
         csrfToken: state.csrfToken,
         isAuthenticated: state.isAuthenticated,
       }),
-    }
-  )
+    },
+  ),
 );
-

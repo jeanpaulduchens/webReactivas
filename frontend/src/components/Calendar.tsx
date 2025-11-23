@@ -5,15 +5,28 @@ interface CalendarProps {
   onDateSelect: (date: string) => void;
 }
 
-export default function Calendar({ selectedDate, onDateSelect }: CalendarProps) {
+export default function Calendar({
+  selectedDate,
+  onDateSelect,
+}: CalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date(selectedDate));
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
   const monthNames = [
-    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
   ];
 
   const firstDayOfMonth = new Date(year, month, 1);
@@ -31,7 +44,7 @@ export default function Calendar({ selectedDate, onDateSelect }: CalendarProps) 
 
   const generateCalendarDays = () => {
     const days = [];
-    
+
     for (let i = 0; i < firstDayWeekday; i++) {
       days.push({ day: 0, dateStr: "" });
     }
@@ -49,9 +62,9 @@ export default function Calendar({ selectedDate, onDateSelect }: CalendarProps) 
   return (
     <div className="bg-white rounded-card shadow-card p-[18px]">
       <div className="flex justify-between items-center mb-4">
-        <button 
-          className="border border-gray-200 bg-white w-9 h-9 rounded-lg cursor-pointer text-lg hover:bg-gray-50 hover:border-indigo-300 transition-all" 
-          onClick={goToPreviousMonth} 
+        <button
+          className="border border-gray-200 bg-white w-9 h-9 rounded-lg cursor-pointer text-lg hover:bg-gray-50 hover:border-indigo-300 transition-all"
+          onClick={goToPreviousMonth}
           aria-label="Mes anterior"
         >
           ‹
@@ -59,9 +72,9 @@ export default function Calendar({ selectedDate, onDateSelect }: CalendarProps) 
         <strong className="text-base font-bold">
           {monthNames[month]} {year}
         </strong>
-        <button 
-          className="border border-gray-200 bg-white w-9 h-9 rounded-lg cursor-pointer text-lg hover:bg-gray-50 hover:border-indigo-300 transition-all" 
-          onClick={goToNextMonth} 
+        <button
+          className="border border-gray-200 bg-white w-9 h-9 rounded-lg cursor-pointer text-lg hover:bg-gray-50 hover:border-indigo-300 transition-all"
+          onClick={goToNextMonth}
           aria-label="Mes siguiente"
         >
           ›
@@ -85,13 +98,13 @@ export default function Calendar({ selectedDate, onDateSelect }: CalendarProps) 
           }
 
           const isSelected = dayObj.dateStr === selectedDate;
-          
+
           return (
             <button
               key={dayObj.dateStr}
               className={`w-full aspect-square grid place-items-center rounded-lg border cursor-pointer text-sm transition-all ${
-                isSelected 
-                  ? "bg-primary text-white font-bold border-primary" 
+                isSelected
+                  ? "bg-primary text-white font-bold border-primary"
                   : "border-transparent bg-white text-gray-700 hover:border-indigo-300 hover:bg-blue-50"
               }`}
               onClick={() => onDateSelect(dayObj.dateStr)}

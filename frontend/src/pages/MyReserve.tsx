@@ -6,7 +6,7 @@ import { useAuthStore, useReservationsStore } from "../stores";
 export default function MyBookings() {
   const navigate = useNavigate();
   const today = new Date().toISOString().split("T")[0];
-  
+
   // Store de autenticación
   const { user } = useAuthStore();
   const userRole = user?.role || null;
@@ -34,51 +34,66 @@ export default function MyBookings() {
 
   // Cargar reservas según el rol del usuario
   useEffect(() => {
-    if (userRole === 'barbero') {
+    if (userRole === "barbero") {
       fetchBarberReservations(selectedDate);
-    } else if (userRole === 'cliente') {
+    } else if (userRole === "cliente") {
       fetchClientReservations();
     }
-  }, [userRole, selectedDate, fetchClientReservations, fetchBarberReservations]);
+  }, [
+    userRole,
+    selectedDate,
+    fetchClientReservations,
+    fetchBarberReservations,
+  ]);
 
   const formatDate = (dateInput: string | Date) => {
     // Manejar tanto strings como objetos Date
     let date: Date;
-    
-    if (typeof dateInput === 'string') {
+
+    if (typeof dateInput === "string") {
       // Si es string, puede venir en formato "YYYY-MM-DD" o ISO
-      if (dateInput.includes('T')) {
+      if (dateInput.includes("T")) {
         // Es un string ISO completo (ej: "2025-11-26T00:00:00.000Z")
         date = new Date(dateInput);
       } else {
         // Es formato "YYYY-MM-DD"
-        const [year, month, day] = dateInput.split('-').map(Number);
+        const [year, month, day] = dateInput.split("-").map(Number);
         date = new Date(year, month - 1, day);
       }
     } else {
       // Ya es un objeto Date
       date = new Date(dateInput);
     }
-    
-    return date.toLocaleDateString("es-ES", { 
-      day: "numeric", 
+
+    return date.toLocaleDateString("es-ES", {
+      day: "numeric",
       month: "long",
-      year: "numeric"
+      year: "numeric",
     });
   };
 
   // Renderizar vista para barberos
-  if (userRole === 'barbero') {
+  if (userRole === "barbero") {
     return (
       <div>
-        <h2 className="text-lg font-extrabold my-[18px] mx-0">Mis Reservas Confirmadas</h2>
+        <h2 className="text-lg font-extrabold my-[18px] mx-0">
+          Mis Reservas Confirmadas
+        </h2>
 
         <div className="grid grid-cols-[220px_1fr] gap-6">
           <div className="w-52 py-4 text-muted">
-            <a className="block py-1.5 font-bold" href="#!">Mis Reservas</a>
-            <a className="block py-1.5" href="#!">Servicios</a>
-            <a className="block py-1.5" href="#!">Clientes</a>
-            <a className="block py-1.5" href="#!">Configuración</a>
+            <a className="block py-1.5 font-bold" href="#!">
+              Mis Reservas
+            </a>
+            <a className="block py-1.5" href="#!">
+              Servicios
+            </a>
+            <a className="block py-1.5" href="#!">
+              Clientes
+            </a>
+            <a className="block py-1.5" href="#!">
+              Configuración
+            </a>
           </div>
 
           <div className="bg-white rounded-card shadow-card p-[18px]">
@@ -88,12 +103,12 @@ export default function MyBookings() {
 
             <div className="grid grid-cols-[380px_1fr] gap-6">
               {/* Calendario */}
-              <Calendar 
-                selectedDate={selectedDate} 
+              <Calendar
+                selectedDate={selectedDate}
                 onDateSelect={(date) => {
                   setSelectedDate(date);
                   fetchBarberReservations(date);
-                }} 
+                }}
               />
 
               {/* Lista de reservas */}
@@ -122,28 +137,45 @@ export default function MyBookings() {
                     <table className="w-full border-collapse">
                       <thead>
                         <tr className="border-b-2 border-gray-200">
-                          <th className="text-left p-3 font-semibold text-sm">Hora</th>
-                          <th className="text-left p-3 font-semibold text-sm">Cliente</th>
-                          <th className="text-left p-3 font-semibold text-sm">Servicio</th>
-                          <th className="text-left p-3 font-semibold text-sm">Estado</th>
+                          <th className="text-left p-3 font-semibold text-sm">
+                            Hora
+                          </th>
+                          <th className="text-left p-3 font-semibold text-sm">
+                            Cliente
+                          </th>
+                          <th className="text-left p-3 font-semibold text-sm">
+                            Servicio
+                          </th>
+                          <th className="text-left p-3 font-semibold text-sm">
+                            Estado
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
                         {barberReservations.map((reservation) => (
-                          <tr key={reservation.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
+                          <tr
+                            key={reservation.id}
+                            className="border-b border-gray-100 hover:bg-gray-50 transition"
+                          >
                             <td className="p-3 text-sm font-medium">
                               {reservation.time}
                             </td>
                             <td className="p-3 text-sm">
-                              <div className="font-semibold">{reservation.client.name}</div>
+                              <div className="font-semibold">
+                                {reservation.client.name}
+                              </div>
                               <div className="text-xs text-muted">
-                                {reservation.client.phone || reservation.client.email}
+                                {reservation.client.phone ||
+                                  reservation.client.email}
                               </div>
                             </td>
                             <td className="p-3 text-sm">
-                              <div className="font-medium">{reservation.service.name}</div>
+                              <div className="font-medium">
+                                {reservation.service.name}
+                              </div>
                               <div className="text-xs text-muted">
-                                {reservation.service.durationMin} min · ${reservation.service.price}
+                                {reservation.service.durationMin} min · $
+                                {reservation.service.price}
                               </div>
                             </td>
                             <td className="p-3 text-sm">
@@ -155,7 +187,10 @@ export default function MyBookings() {
                         ))}
                         {barberReservations.length === 0 && (
                           <tr>
-                            <td colSpan={4} className="py-8 text-center text-muted text-sm">
+                            <td
+                              colSpan={4}
+                              className="py-8 text-center text-muted text-sm"
+                            >
                               No hay citas confirmadas para este día.
                             </td>
                           </tr>
@@ -166,7 +201,12 @@ export default function MyBookings() {
                 )}
 
                 <div className="mt-6">
-                  <button className="w-full border-0 rounded-[10px] h-[42px] font-bold bg-primary text-white cursor-pointer hover:bg-primary-600" onClick={() => navigate(-1)}>← Volver</button>
+                  <button
+                    className="w-full border-0 rounded-[10px] h-[42px] font-bold bg-primary text-white cursor-pointer hover:bg-primary-600"
+                    onClick={() => navigate(-1)}
+                  >
+                    ← Volver
+                  </button>
                 </div>
               </div>
             </div>
@@ -182,9 +222,7 @@ export default function MyBookings() {
       <h2 className="text-lg font-extrabold my-[18px] mx-0">Mis Reservas</h2>
 
       <div className="bg-white rounded-card shadow-card p-[18px]">
-        <h3 className="font-extrabold text-[26px] mt-0">
-          Mis Reservas
-        </h3>
+        <h3 className="font-extrabold text-[26px] mt-0">Mis Reservas</h3>
         <p className="mt-0 mb-4 text-muted text-sm">
           Aquí puedes ver todas tus reservas realizadas.
         </p>
@@ -216,7 +254,9 @@ export default function MyBookings() {
             <tbody>
               {clientReservations.map((reservation) => (
                 <tr key={reservation.id} className="border-t border-gray-200">
-                  <td className="py-3 text-sm">{formatDate(reservation.date)}</td>
+                  <td className="py-3 text-sm">
+                    {formatDate(reservation.date)}
+                  </td>
                   <td className="py-3 text-sm">{reservation.time}</td>
                   <td className="py-3 text-sm">
                     <div>{reservation.service.name}</div>
@@ -224,7 +264,9 @@ export default function MyBookings() {
                       {reservation.service.type}
                     </div>
                   </td>
-                  <td className="py-3 text-sm">{reservation.service.durationMin} min</td>
+                  <td className="py-3 text-sm">
+                    {reservation.service.durationMin} min
+                  </td>
                   <td className="py-3 text-sm">${reservation.service.price}</td>
                   <td className="py-3 text-sm">
                     <span className="text-green-600 text-[13px] font-semibold capitalize">
@@ -235,7 +277,10 @@ export default function MyBookings() {
               ))}
               {clientReservations.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-6 text-center text-muted text-sm">
+                  <td
+                    colSpan={6}
+                    className="py-6 text-center text-muted text-sm"
+                  >
                     No tienes reservas aún. ¡Agenda tu primera cita!
                   </td>
                 </tr>
@@ -245,7 +290,12 @@ export default function MyBookings() {
         )}
 
         <div className="mt-6">
-          <button className="w-full border-0 rounded-[10px] h-[42px] font-bold bg-primary text-white cursor-pointer hover:bg-primary-600" onClick={() => navigate(-1)}>← Volver</button>
+          <button
+            className="w-full border-0 rounded-[10px] h-[42px] font-bold bg-primary text-white cursor-pointer hover:bg-primary-600"
+            onClick={() => navigate(-1)}
+          >
+            ← Volver
+          </button>
         </div>
       </div>
     </div>

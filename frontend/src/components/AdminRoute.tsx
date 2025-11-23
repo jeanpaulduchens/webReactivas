@@ -1,6 +1,6 @@
-import { Navigate } from 'react-router-dom';
-import { useEffect } from 'react';
-import { useAuthStore } from '../stores';
+import { Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useAuthStore } from "../stores";
 
 interface AdminRouteProps {
   children: React.ReactNode;
@@ -27,11 +27,10 @@ export default function AdminRoute({ children }: AdminRouteProps) {
   }
 
   // Si no es admin, redirigir a home
-  if (user?.role !== 'admin') {
+  if (user?.role !== "admin") {
     return <Navigate to="/" replace />;
   }
 
   // Si es admin, mostrar el componente
   return <>{children}</>;
 }
-

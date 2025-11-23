@@ -13,7 +13,12 @@ export async function createReservation(reservation: {
   return response.data;
 }
 
-export async function getReservationsByDateAndService(date: string, serviceId: string) {
-  const response = await axios.get(baseUrl + `?date=${date}&serviceId=${serviceId}`);
+export async function getReservationsByDateAndService(
+  date: string,
+  serviceId: string,
+) {
+  const response = await axios.get(
+    baseUrl + `?date=${date}&serviceId=${serviceId}`,
+  );
   return response.data;
 }

@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import { createUserAsAdmin, getAllUsers } from '../api/users';
-import type { User, CreateUserData } from '../types';
+import { create } from "zustand";
+import { createUserAsAdmin, getAllUsers } from "../api/users";
+import type { User, CreateUserData } from "../types";
 
 interface UsersState {
   // Estado
@@ -35,7 +35,8 @@ export const useUsersStore = create<UsersState>((set) => ({
         error: null,
       });
     } catch (err: any) {
-      const errorMessage = err.response?.data?.error || 'Error al cargar los usuarios';
+      const errorMessage =
+        err.response?.data?.error || "Error al cargar los usuarios";
       set({
         users: [],
         loading: false,
@@ -49,7 +50,7 @@ export const useUsersStore = create<UsersState>((set) => ({
     set({ loading: true, error: null, successMessage: null });
     try {
       const newUser = await createUserAsAdmin(userData);
-      
+
       // Agregar el nuevo usuario a la lista
       set((state) => ({
         users: [...state.users, newUser],
@@ -57,10 +58,11 @@ export const useUsersStore = create<UsersState>((set) => ({
         error: null,
         successMessage: `Usuario ${newUser.username} creado exitosamente`,
       }));
-      
+
       return newUser;
     } catch (err: any) {
-      const errorMessage = err.response?.data?.error || 'Error al crear el usuario';
+      const errorMessage =
+        err.response?.data?.error || "Error al crear el usuario";
       set({
         loading: false,
         error: errorMessage,
@@ -88,4 +90,3 @@ export const useUsersStore = create<UsersState>((set) => ({
     });
   },
 }));
-

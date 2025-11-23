@@ -1,7 +1,11 @@
-import { create } from 'zustand';
-import { getMyReservations, updateReservation, deleteReservation } from '../api/clientReservations';
-import { getConfirmedReservationsByDay } from '../api/barberReservations';
-import type { ClientReservation, BarberReservation } from '../types';
+import { create } from "zustand";
+import {
+  getMyReservations,
+  updateReservation,
+  deleteReservation,
+} from "../api/clientReservations";
+import { getConfirmedReservationsByDay } from "../api/barberReservations";
+import type { ClientReservation, BarberReservation } from "../types";
 
 interface ReservationsState {
   // Estado para clientes
@@ -17,7 +21,10 @@ interface ReservationsState {
 
   // Acciones para clientes
   fetchClientReservations: () => Promise<void>;
-  updateClientReservation: (id: string, data: { serviceId?: string; date?: string; time?: string; status?: string }) => Promise<void>;
+  updateClientReservation: (
+    id: string,
+    data: { serviceId?: string; date?: string; time?: string; status?: string },
+  ) => Promise<void>;
   deleteClientReservation: (id: string) => Promise<void>;
   clearClientReservations: () => void;
 
@@ -40,7 +47,7 @@ export const useReservationsStore = create<ReservationsState>((set, get) => ({
   barberReservations: [],
   barberLoading: false,
   barberError: null,
-  selectedDate: new Date().toISOString().split('T')[0],
+  selectedDate: new Date().toISOString().split("T")[0],
 
   // Fetch reservas de cliente
   fetchClientReservations: async () => {
@@ -53,7 +60,8 @@ export const useReservationsStore = create<ReservationsState>((set, get) => ({
         clientError: null,
       });
     } catch (err: any) {
-      const errorMessage = err.response?.data?.error || 'Error al cargar las reservas';
+      const errorMessage =
+        err.response?.data?.error || "Error al cargar las reservas";
       set({
         clientReservations: [],
         clientLoading: false,
@@ -63,14 +71,18 @@ export const useReservationsStore = create<ReservationsState>((set, get) => ({
   },
 
   // Actualizar reserva de cliente
-  updateClientReservation: async (id: string, data: { serviceId?: string; date?: string; time?: string; status?: string }) => {
+  updateClientReservation: async (
+    id: string,
+    data: { serviceId?: string; date?: string; time?: string; status?: string },
+  ) => {
     set({ clientLoading: true, clientError: null });
     try {
       await updateReservation(id, data);
       // Recargar las reservas después de actualizar
       await get().fetchClientReservations();
     } catch (err: any) {
-      const errorMessage = err.response?.data?.error || 'Error al actualizar la reserva';
+      const errorMessage =
+        err.response?.data?.error || "Error al actualizar la reserva";
       set({
         clientLoading: false,
         clientError: errorMessage,
@@ -91,7 +103,8 @@ export const useReservationsStore = create<ReservationsState>((set, get) => ({
         clientError: null,
       }));
     } catch (err: any) {
-      const errorMessage = err.response?.data?.error || 'Error al eliminar la reserva';
+      const errorMessage =
+        err.response?.data?.error || "Error al eliminar la reserva";
       set({
         clientLoading: false,
         clientError: errorMessage,
@@ -120,7 +133,8 @@ export const useReservationsStore = create<ReservationsState>((set, get) => ({
         barberError: null,
       });
     } catch (err: any) {
-      const errorMessage = err.response?.data?.error || 'Error al cargar las reservas';
+      const errorMessage =
+        err.response?.data?.error || "Error al cargar las reservas";
       set({
         barberReservations: [],
         barberLoading: false,
@@ -151,4 +165,3 @@ export const useReservationsStore = create<ReservationsState>((set, get) => ({
     });
   },
 }));
-

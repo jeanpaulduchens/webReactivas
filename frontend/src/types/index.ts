@@ -24,7 +24,7 @@ export interface User {
   email: string;
   name: string;
   phone?: string;
-  role?: 'cliente' | 'barbero' | 'admin';
+  role?: "cliente" | "barbero" | "admin";
 }
 
 export interface LoginCredentials {
