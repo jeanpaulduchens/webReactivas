@@ -1,70 +1,45 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Calendar from "../components/Calendar";
-import { getConfirmedReservationsByDay } from "../api/barberReservations";
-import { getMyReservations } from "../api/clientReservations";
-import type { BarberReservation, ClientReservation } from "../types";
+import { useAuthStore, useReservationsStore } from "../stores";
 
 export default function MyBookings() {
   const navigate = useNavigate();
   const today = new Date().toISOString().split("T")[0];
-  const [selectedDate, setSelectedDate] = useState(today);
-  const [barberReservations, setBarberReservations] = useState<BarberReservation[]>([]);
-  const [clientReservations, setClientReservations] = useState<ClientReservation[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [userRole, setUserRole] = useState<'cliente' | 'barbero' | null>(null);
+  
+  // Store de autenticación
+  const { user } = useAuthStore();
+  const userRole = user?.role || null;
 
-  // Detectar el rol del usuario desde localStorage
+  // Store de reservas
+  const {
+    clientReservations,
+    clientLoading,
+    clientError,
+    barberReservations,
+    barberLoading,
+    barberError,
+    selectedDate,
+    fetchClientReservations,
+    fetchBarberReservations,
+    setSelectedDate,
+  } = useReservationsStore();
+
+  // Inicializar fecha seleccionada
   useEffect(() => {
-    const userDataStr = localStorage.getItem('userData');
-    if (userDataStr) {
-      try {
-        const userData = JSON.parse(userDataStr);
-        setUserRole(userData.role);
-        console.log('Rol del usuario:', userData.role);
-      } catch (err) {
-        console.error('Error parseando userData:', err);
-      }
+    if (selectedDate !== today) {
+      setSelectedDate(today);
     }
   }, []);
 
   // Cargar reservas según el rol del usuario
   useEffect(() => {
-    const fetchReservations = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        if (userRole === 'barbero') {
-          // Barbero: cargar reservas por día
-          console.log('Cargando reservas de barbero para fecha:', selectedDate);
-          const data = await getConfirmedReservationsByDay(selectedDate);
-          console.log('Reservas de barbero obtenidas:', data);
-          setBarberReservations(data);
-        } else if (userRole === 'cliente') {
-          // Cliente: cargar sus propias reservas
-          console.log('Cargando reservas de cliente');
-          const data = await getMyReservations();
-          console.log('Reservas de cliente obtenidas:', data);
-          setClientReservations(data);
-        }
-      } catch (err: any) {
-        console.error("Error al cargar reservas:", err);
-        setError(err.response?.data?.error || "Error al cargar las reservas");
-        setBarberReservations([]);
-        setClientReservations([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (userRole) {
-      console.log('Ejecutando fetchReservations para rol:', userRole);
-      fetchReservations();
-    } else {
-      console.log('No hay userRole definido aún');
+    if (userRole === 'barbero') {
+      fetchBarberReservations(selectedDate);
+    } else if (userRole === 'cliente') {
+      fetchClientReservations();
     }
-  }, [userRole, selectedDate]);
+  }, [userRole, selectedDate, fetchClientReservations, fetchBarberReservations]);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -98,7 +73,10 @@ export default function MyBookings() {
               {/* Calendario */}
               <Calendar 
                 selectedDate={selectedDate} 
-                onDateSelect={setSelectedDate} 
+                onDateSelect={(date) => {
+                  setSelectedDate(date);
+                  fetchBarberReservations(date);
+                }} 
               />
 
               {/* Lista de reservas */}
@@ -110,19 +88,19 @@ export default function MyBookings() {
                   Aquí tienes un resumen de tus citas confirmadas y programadas.
                 </p>
 
-                {loading && (
+                {barberLoading && (
                   <div className="loading-message">
                     Cargando reservas...
                   </div>
                 )}
 
-                {error && (
+                {barberError && (
                   <div className="error-box">
-                    {error}
+                    {barberError}
                   </div>
                 )}
 
-                {!loading && !error && (
+                {!barberLoading && !barberError && (
                   <table className="reservations-table">
                     <thead>
                       <tr>
@@ -192,19 +170,19 @@ export default function MyBookings() {
           Aquí puedes ver todas tus reservas realizadas.
         </p>
 
-        {loading && (
+        {clientLoading && (
           <div className="loading-message">
             Cargando reservas...
           </div>
         )}
 
-        {error && (
+        {clientError && (
           <div className="error-box">
-            {error}
+            {clientError}
           </div>
         )}
 
-        {!loading && !error && (
+        {!clientLoading && !clientError && (
           <table className="reservations-table">
             <thead>
               <tr>

@@ -1,4 +1,15 @@
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../stores';
+
 export default function Navbar() {
+  const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuthStore();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
+
   return (
     <div className="navbar">
       <img
@@ -8,6 +19,19 @@ export default function Navbar() {
       <div className="brand">BarberBook</div>
       <span style={{color:"#9ca3af"}}>/</span>
       <div>Servicios</div>
+      
+      {isAuthenticated && user && (
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <span style={{ color: '#9ca3af' }}>Hola, {user.name}</span>
+          <button 
+            className="btn" 
+            onClick={handleLogout}
+            style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
+          >
+            Cerrar Sesión
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,34 +1,44 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from '@api/login';
+import { useAuthStore } from '../stores';
 
 export default function Login() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  
+  // Usar el store de autenticación
+  const { login, isLoading, error, clearError, isAuthenticated } = useAuthStore();
+
+  // Redirigir si ya está autenticado
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Limpiar error cuando el componente se monta
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
+    clearError();
+    setSuccess(false);
 
     try {
-      const userData = await login({ username, password });
+      await login({ username, password });
       setSuccess(true);
-      console.log("Login exitoso:", userData);
       // Redirigir a la página principal después del login exitoso
       setTimeout(() => {
         navigate('/');
       }, 1000);
     } catch (err: any) {
-      setError(err.response?.data?.error || "Error al iniciar sesión");
+      // El error ya está manejado en el store
       console.error("Error en login:", err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -89,9 +99,9 @@ export default function Login() {
             <button 
               type="submit"
               className="btn primary block login-submit" 
-              disabled={loading}
+              disabled={isLoading}
             >
-              {loading ? "Iniciando..." : "Iniciar Sesión"}
+              {isLoading ? "Iniciando..." : "Iniciar Sesión"}
             </button>
           </form>
 
