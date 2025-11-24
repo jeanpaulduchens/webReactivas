@@ -570,11 +570,11 @@ Los tests están configurados para:
 1. Haz fork del proyecto
 2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
 3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-
-## Deploy
-fullstack.dcc.uchile.cl:<7130>.
 4. Push a la rama (`git push origin feature/AmazingFeature`)
 5. Abre un Pull Request
+
+## Deploy
+fullstack.dcc.uchile.cl:7130
 
 ## 📄 Licencia
 
