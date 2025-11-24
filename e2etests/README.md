@@ -2,12 +2,23 @@
 
 Este directorio contiene los tests end-to-end (E2E) del sistema de reservas de barbería, implementados con [Playwright](https://playwright.dev/).
 
-## 📋 Requisitos Previos
+## 📋 Tabla de Contenidos
 
-- Node.js (v18 o superior)
-- npm o yarn
-- MongoDB corriendo (localmente o con Docker)
-- Backend y Frontend del proyecto configurados
+- [Requisitos Previos](#requisitos-previos)
+- [Instalación](#instalación)
+- [Ejecutar los Tests](#ejecutar-los-tests)
+- [Tests Implementados](#tests-implementados)
+- [Configuración](#configuración)
+- [Debugging](#debugging)
+- [Solución de Problemas](#solución-de-problemas)
+- [Mejores Prácticas](#mejores-prácticas)
+
+## 🔧 Requisitos Previos
+
+- **Node.js** (v18 o superior)
+- **npm** o **yarn**
+- **MongoDB** corriendo (localmente o con Docker)
+- Backend y Frontend del proyecto configurados y funcionando
 
 ## 📦 Instalación
 
@@ -16,11 +27,11 @@ cd e2etests
 npm install
 ```
 
-Esto instalará Playwright y sus dependencias, incluyendo los navegadores necesarios.
+Esto instalará Playwright y sus dependencias, incluyendo los navegadores necesarios (Chromium, Firefox, WebKit).
 
 ## 🚀 Ejecutar los Tests
 
-### Ejecutar todos los tests
+### Ejecutar todos los tests (modo headless)
 
 ```bash
 npm test
@@ -28,7 +39,7 @@ npm test
 
 Este comando:
 - Iniciará automáticamente el backend (puerto 3001) y frontend (puerto 5173)
-- Ejecutará todos los tests E2E
+- Ejecutará todos los tests E2E en modo headless
 - Generará un reporte HTML con los resultados
 
 ### Ejecutar tests en modo UI (recomendado para desarrollo)
@@ -43,7 +54,7 @@ Abre una interfaz gráfica donde puedes:
 - Ver screenshots y videos de las ejecuciones
 - Depurar tests fácilmente
 
-### Ejecutar tests en modo headed (con navegador visible)
+### Ejecutar tests con el navegador visible
 
 ```bash
 npm run test:headed
@@ -59,53 +70,65 @@ npm run test:debug
 
 Abre Playwright Inspector para depurar paso a paso.
 
-### Ver reporte HTML
+### Ver el reporte HTML de la última ejecución
 
 ```bash
 npm run test:report
 ```
 
-Abre el reporte HTML de la última ejecución de tests.
-
-## 📁 Estructura de Tests
-
-```
-e2etests/
-├── tests/
-│   ├── login.spec.ts              # Tests de login y acceso protegido
-│   └── reservations-crud.spec.ts  # Tests de CRUD de reservas
-├── playwright.config.ts           # Configuración de Playwright
-├── tsconfig.json                  # Configuración de TypeScript
-├── package.json
-└── README.md
-```
+Abre el reporte HTML interactivo con los resultados de la última ejecución.
 
 ## 🧪 Tests Implementados
 
-### 1. Login y Acceso Protegido (`login.spec.ts`)
+### 1. Login y Acceso Protegido (`tests/login.spec.ts`)
 
-- ✅ Redirección a login cuando se accede a ruta protegida sin autenticación
-- ✅ Error con credenciales inválidas
-- ✅ Login exitoso y redirección
-- ✅ Acceso a rutas protegidas después del login
-- ✅ Persistencia de sesión al recargar la página
+Cubre el flujo completo de autenticación y protección de rutas:
 
-**Cobertura:**
-- Validación de rutas protegidas
-- Flujo completo de autenticación
+- ✅ **Redirección a login**: Verifica que al acceder a rutas protegidas sin autenticación, se redirige automáticamente a `/login`
+- ✅ **Credenciales inválidas**: Prueba el manejo de errores con credenciales incorrectas
+- ✅ **Login exitoso**: Valida el flujo completo de login y redirección a página principal
+- ✅ **Acceso a rutas protegidas**: Verifica que después del login se puede acceder a rutas protegidas
+- ✅ **Persistencia de sesión**: Comprueba que la sesión se mantiene al recargar la página
+
+**Cobertura técnica:**
+- Validación de rutas protegidas con `ProtectedRoute`
+- Flujo completo de autenticación con JWT y CSRF tokens
 - Manejo de errores de login
-- Persistencia de sesión con localStorage
-- Tokens CSRF y cookies
+- Persistencia de sesión con `localStorage` y cookies
+- Tokens CSRF y cookies de autenticación
 
-### 2. CRUD de Reservas (`reservations-crud.spec.ts`)
+### 2. CRUD de Reservas (`tests/reservations-crud.spec.ts`)
+
+Cubre todas las operaciones CRUD sobre la entidad de reservas:
 
 - ✅ **CREATE**: Crear una nueva reserva desde la UI
-- ✅ **READ**: Listar las reservas del usuario
-- ✅ **UPDATE**: Actualizar una reserva existente (hora, estado)
+  - Selección de servicio desde la lista
+  - Selección de barbero
+  - Selección de fecha mediante calendario
+  - Selección de hora disponible
+  - Confirmación de la reserva
+  
+- ✅ **READ**: Listar las reservas del usuario autenticado
+  - Visualización de todas las reservas del usuario
+  - Verificación de datos mostrados (fecha, hora, servicio, estado)
+  
+- ✅ **UPDATE**: Actualizar una reserva existente
+  - Cambio de hora de la reserva
+  - Cambio de estado de la reserva
+  - Verificación de actualización en la UI
+  
 - ✅ **DELETE**: Eliminar una reserva existente
-- ✅ Flujo completo de CRUD en la UI
+  - Cancelación de reserva mediante API
+  - Verificación de eliminación en la lista
+  
+- ✅ **Flujo completo**: Ejecuta un flujo completo de CRUD en la UI
+  - Crea una reserva
+  - La lista
+  - La actualiza
+  - La elimina
+  - Verifica cada paso en la interfaz
 
-**Cobertura:**
+**Cobertura técnica:**
 - Creación de reservas mediante interfaz gráfica con calendario y selección de horarios
 - Listado y visualización de reservas del usuario autenticado
 - Actualización de reservas mediante API (cambio de hora y estado)
@@ -117,7 +140,7 @@ e2etests/
 La configuración de Playwright se encuentra en `playwright.config.ts`. Por defecto:
 
 - **Base URL**: `http://localhost:5173` (frontend)
-- **Navegador**: Chromium
+- **Navegador**: Chromium (configurable para Firefox o WebKit)
 - **Servidores**: Se inician automáticamente el backend y frontend antes de los tests
 - **Timeouts**: Configurados para esperar la carga de los servidores (120 segundos)
 - **Reintentos**: 2 reintentos en CI, 0 en local
@@ -134,13 +157,32 @@ Puedes modificar `playwright.config.ts` para:
 - Agregar más opciones de reporte
 - Configurar workers paralelos
 
+Ejemplo para ejecutar en múltiples navegadores:
+
+```typescript
+projects: [
+  {
+    name: 'chromium',
+    use: { ...devices['Desktop Chrome'] },
+  },
+  {
+    name: 'firefox',
+    use: { ...devices['Desktop Firefox'] },
+  },
+  {
+    name: 'webkit',
+    use: { ...devices['Desktop Safari'] },
+  },
+],
+```
+
 ## 🔍 Debugging
 
 ### Ver qué está pasando
 
-1. Usa `npm run test:headed` para ver el navegador
-2. Usa `npm run test:ui` para la interfaz gráfica
-3. Usa `npm run test:debug` para depurar paso a paso
+1. **Modo headed**: Usa `npm run test:headed` para ver el navegador en acción
+2. **Modo UI**: Usa `npm run test:ui` para la interfaz gráfica interactiva
+3. **Modo debug**: Usa `npm run test:debug` para depurar paso a paso con Playwright Inspector
 
 ### Screenshots y Videos
 
@@ -161,15 +203,21 @@ Playwright genera trazas automáticamente en el primer reintento. Puedes verlas 
 npm run test:report
 ```
 
+Las trazas incluyen:
+- Capturas de pantalla en cada paso
+- Network requests y responses
+- Console logs
+- Timeline de ejecución
+
 ## 📝 Notas Importantes
 
-- Los tests crean usuarios de prueba automáticamente con timestamps únicos para evitar conflictos
-- Los datos de prueba se limpian entre tests (cookies y localStorage)
-- **Asegúrate de que MongoDB esté corriendo antes de ejecutar los tests**
-- Los tests esperan automáticamente a que los servidores estén listos
-- Los selectores se actualizaron para coincidir con la UI actual del proyecto
-- Los tests son independientes y pueden ejecutarse en cualquier orden
-- Las reservas se crean con estado `confirmed` para que aparezcan en las vistas del barbero
+- **Usuarios de prueba**: Los tests crean usuarios de prueba automáticamente con timestamps únicos para evitar conflictos
+- **Limpieza de datos**: Los datos de prueba se limpian entre tests (cookies y localStorage)
+- **MongoDB requerido**: Asegúrate de que MongoDB esté corriendo antes de ejecutar los tests
+- **Inicio automático**: Los tests esperan automáticamente a que los servidores estén listos
+- **Selectores actualizados**: Los selectores se actualizaron para coincidir con la UI actual del proyecto
+- **Tests independientes**: Los tests son independientes y pueden ejecutarse en cualquier orden
+- **Estado de reservas**: Las reservas se crean con estado `confirmed` para que aparezcan en las vistas del barbero
 
 ## 🐛 Solución de Problemas
 
@@ -207,6 +255,7 @@ npm install
 ### Los selectores no encuentran elementos
 
 Los selectores se actualizaron para coincidir con la UI actual. Si la UI cambia en el futuro, puede que necesites actualizar los selectores en los archivos `.spec.ts`. Los selectores principales usados son:
+
 - `input[placeholder="tu_usuario"]` y `input[placeholder="tu_contraseña"]` para login
 - `button:has-text(":")` para horarios disponibles
 - `table` para listado de reservas
@@ -220,13 +269,21 @@ Los selectores se actualizaron para coincidir con la UI actual. Si la UI cambia 
 4. **Mantén los tests independientes** entre sí
 5. **Actualiza los selectores** si la UI cambia
 6. **Documenta tests complejos** con comentarios claros
+7. **Usa datos de prueba únicos** para evitar conflictos
+8. **Limpia el estado** entre tests cuando sea necesario
 
-## 📚 Recursos
+## 📁 Estructura de Tests
 
-- [Documentación de Playwright](https://playwright.dev/)
-- [Guía de mejores prácticas](https://playwright.dev/docs/best-practices)
-- [API de Playwright](https://playwright.dev/docs/api/class-test)
-- [Guía de selectores](https://playwright.dev/docs/selectors)
+```
+e2etests/
+├── tests/
+│   ├── login.spec.ts              # Tests de login y acceso protegido
+│   └── reservations-crud.spec.ts # Tests de CRUD de reservas
+├── playwright.config.ts           # Configuración de Playwright
+├── tsconfig.json                  # Configuración de TypeScript
+├── package.json
+└── README.md                      # Este archivo
+```
 
 ## 🔄 Integración Continua
 
@@ -241,3 +298,10 @@ Para configurar en tu CI, asegúrate de:
 3. Configurar las variables de entorno necesarias
 4. Ejecutar: `npm test`
 
+## 📚 Recursos
+
+- [Documentación de Playwright](https://playwright.dev/)
+- [Guía de mejores prácticas](https://playwright.dev/docs/best-practices)
+- [API de Playwright](https://playwright.dev/docs/api/class-test)
+- [Guía de selectores](https://playwright.dev/docs/selectors)
+- [Guía de debugging](https://playwright.dev/docs/debug)
