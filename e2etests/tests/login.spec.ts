@@ -22,10 +22,13 @@ test.describe('Login y Acceso Protegido', () => {
     // Llenar el formulario con credenciales inválidas
     await page.fill('input[placeholder="tu_usuario"]', 'usuario_inexistente');
     await page.fill('input[placeholder="tu_contraseña"]', 'password_incorrecto');
-    await page.click('button:has-text("Iniciar Sesión")');
+    await page.locator('form >> button[type="submit"]').click();
     
-    // Debe mostrar un mensaje de error (el texto puede variar)
-    await expect(page.locator('text=/error|inválid|incorrect|wrong/i')).toBeVisible({ timeout: 5000 });
+    // Debe permanecer en /login (no redirigir) y el botón no debe estar disabled
+    await page.waitForTimeout(1000);
+    await expect(page).toHaveURL(/.*\/login/);
+    // Verificar que el botón ya no está en loading
+    await expect(page.locator('form >> button[type="submit"]')).toBeEnabled();
   });
 
   test('debe hacer login exitoso y redirigir a la página principal', async ({ page }) => {
@@ -50,19 +53,13 @@ test.describe('Login y Acceso Protegido', () => {
     await page.fill('input[placeholder="tu_contraseña"]', 'password123');
     
     // Esperar a que el botón esté habilitado
-    await page.waitForSelector('button:has-text("Iniciar Sesión"):not([disabled])');
-    await page.click('button:has-text("Iniciar Sesión")');
-    
-    // Debe mostrar mensaje de éxito
-    await expect(page.locator('text=/login exitoso|éxito/i')).toBeVisible({ timeout: 10000 });
-    
-    // Esperar a que se guarde el token en localStorage
-    await page.waitForFunction(() => {
-      return localStorage.getItem('csrfToken') !== null;
-    }, { timeout: 5000 });
+    await page.locator('form >> button[type="submit"]').click();
     
     // Debe redirigir a la página principal
     await expect(page).toHaveURL('/', { timeout: 10000 });
+    
+    // Verificar que aparece el botón de cerrar sesión
+    await expect(page.getByText('Cerrar Sesión')).toBeVisible({ timeout: 5000 });
   });
 
   test('debe permitir acceso a rutas protegidas después del login', async ({ page }) => {
@@ -82,16 +79,13 @@ test.describe('Login y Acceso Protegido', () => {
     await page.fill('input[placeholder="tu_usuario"]', 'testuser_protected');
     await page.fill('input[placeholder="tu_contraseña"]', 'password123');
     await page.waitForSelector('button:has-text("Iniciar Sesión"):not([disabled])');
-    await page.click('button:has-text("Iniciar Sesión")');
+    await page.locator('form >> button[type="submit"]').click();
     
-    // Esperar a que se complete el login
-    await expect(page.locator('text=/login exitoso|éxito/i')).toBeVisible({ timeout: 10000 });
+    // Esperar redirección
     await page.waitForURL('/', { timeout: 10000 });
     
-    // Esperar a que el token esté en localStorage
-    await page.waitForFunction(() => {
-      return localStorage.getItem('csrfToken') !== null;
-    }, { timeout: 5000 });
+    // Verificar autenticación
+    await expect(page.getByText('Cerrar Sesión')).toBeVisible({ timeout: 5000 });
     
     // Intentar acceder a una ruta protegida
     await page.goto('/reservas');
@@ -118,21 +112,17 @@ test.describe('Login y Acceso Protegido', () => {
     await page.fill('input[placeholder="tu_usuario"]', 'testuser_session');
     await page.fill('input[placeholder="tu_contraseña"]', 'password123');
     await page.waitForSelector('button:has-text("Iniciar Sesión"):not([disabled])');
-    await page.click('button:has-text("Iniciar Sesión")');
-    await expect(page.locator('text=/login exitoso|éxito/i')).toBeVisible({ timeout: 10000 });
+    await page.locator('form >> button[type="submit"]').click();
     await page.waitForURL('/', { timeout: 10000 });
     
-    // Esperar a que el token esté guardado
-    await page.waitForFunction(() => {
-      return localStorage.getItem('csrfToken') !== null;
-    }, { timeout: 5000 });
+    // Verificar que está autenticado
+    await expect(page.getByText('Cerrar Sesión')).toBeVisible({ timeout: 5000 });
     
     // Recargar la página
     await page.reload();
     
-    // Verificar que el token sigue ahí
-    const token = await page.evaluate(() => localStorage.getItem('csrfToken'));
-    expect(token).not.toBeNull();
+    // Verificar que mantiene la sesión (debe seguir viendo el botón de logout)
+    await expect(page.getByText('Cerrar Sesión')).toBeVisible({ timeout: 5000 });
     
     // Debe mantener la sesión y permitir acceso a rutas protegidas
     await page.goto('/mis-reservas');

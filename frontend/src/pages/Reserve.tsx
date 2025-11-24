@@ -5,9 +5,9 @@ import {
   getReservationsByDateAndService,
 } from "../api/reservations";
 import { getAllServices } from "../api/services";
-import { restoreLogin } from "../api/login";
+import { useAuthStore } from "../stores";
 import Calendar from "../components/Calendar";
-import type { Service, User } from "../types";
+import type { Service } from "../types";
 
 const HOURS: string[] = [
   "09:00",
@@ -38,17 +38,12 @@ export default function Reservations() {
   const [selectedDate, setSelectedDate] = useState<string>(today);
   const [slot, setSlot] = useState<string | null>(null);
 
-  const [user, setUser] = useState<User | null>(null);
+  const user = useAuthStore((state) => state.user);
   const [services, setServices] = useState<Service[]>([]);
   const [serviceId, setServiceId] = useState<string>("");
   const [reservedSlots, setReservedSlots] = useState<string[]>([]);
 
   useEffect(() => {
-    // Obtener usuario autenticado
-    restoreLogin().then((userData) => {
-      setUser(userData);
-    });
-
     // Obtener servicios
     getAllServices().then((data) => {
       setServices(data);
