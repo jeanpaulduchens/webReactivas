@@ -315,6 +315,105 @@ curl http://localhost:3001/api/reservations \
 - `npm run preview` - Previsualiza la build de producción
 - `npm run lint` - Ejecuta el linter
 
+## 🧪 Tests E2E
+
+El proyecto incluye tests end-to-end (E2E) implementados con Playwright que validan el funcionamiento completo de la aplicación.
+
+### Requisitos para los tests
+
+- Node.js (v18 o superior)
+- MongoDB corriendo
+- Backend y Frontend configurados correctamente
+
+### Instalación de dependencias
+
+```bash
+cd e2etests
+npm install
+```
+
+### Ejecutar los tests
+
+Los tests E2E se encuentran en la carpeta `e2etests/` y pueden ejecutarse de varias formas:
+
+#### Ejecutar todos los tests (modo headless)
+
+```bash
+cd e2etests
+npm test
+```
+
+Este comando:
+- Iniciará automáticamente el backend (puerto 3001) y el frontend (puerto 5173)
+- Ejecutará todos los tests en modo headless
+- Generará un reporte HTML con los resultados
+
+#### Ejecutar tests en modo UI (recomendado para desarrollo)
+
+```bash
+cd e2etests
+npm run test:ui
+```
+
+Abre una interfaz gráfica donde puedes:
+- Ver los tests en tiempo real
+- Ejecutar tests individuales
+- Ver screenshots y videos de las ejecuciones
+- Depurar tests fácilmente
+
+#### Ejecutar tests con el navegador visible
+
+```bash
+cd e2etests
+npm run test:headed
+```
+
+Útil para ver qué está haciendo el navegador durante la ejecución.
+
+#### Ejecutar tests en modo debug
+
+```bash
+cd e2etests
+npm run test:debug
+```
+
+Abre Playwright Inspector para depurar paso a paso.
+
+#### Ver el reporte HTML de la última ejecución
+
+```bash
+cd e2etests
+npm run test:report
+```
+
+### Tests implementados
+
+#### 1. Login y Acceso Protegido (`login.spec.ts`)
+
+- ✅ Redirección a login cuando se accede a ruta protegida sin autenticación
+- ✅ Error con credenciales inválidas
+- ✅ Login exitoso y redirección
+- ✅ Acceso a rutas protegidas después del login
+- ✅ Persistencia de sesión al recargar la página
+
+#### 2. CRUD de Reservas (`reservations-crud.spec.ts`)
+
+- ✅ **CREATE**: Crear una nueva reserva desde la UI
+- ✅ **READ**: Listar las reservas del usuario
+- ✅ **UPDATE**: Actualizar una reserva existente (hora, estado)
+- ✅ **DELETE**: Eliminar una reserva existente
+- ✅ Flujo completo de CRUD en la UI
+
+### Notas sobre los tests
+
+- Los tests crean usuarios de prueba automáticamente
+- Los datos se limpian entre tests cuando es posible
+- Asegúrate de que MongoDB esté corriendo antes de ejecutar los tests
+- Los tests esperan automáticamente a que los servidores estén listos
+- El backend y frontend deben estar configurados con sus archivos `.env` correspondientes
+
+Para más información sobre los tests E2E, consulta el README en la carpeta `e2etests/`.
+
 ## 🔐 Seguridad
 
 - Las contraseñas se almacenan hasheadas usando bcrypt

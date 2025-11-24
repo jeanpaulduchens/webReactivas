@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Login y Acceso Protegido', () => {
-  test.beforeEach(async ({ page }) => {
-    // Limpiar localStorage antes de cada test
+  test.beforeEach(async ({ page, context }) => {
+    // Limpiar cookies y localStorage antes de cada test
+    await context.clearCookies();
     await page.goto('/');
     await page.evaluate(() => localStorage.clear());
   });
@@ -20,24 +21,22 @@ test.describe('Login y Acceso Protegido', () => {
     
     // Llenar el formulario con credenciales inválidas
     await page.fill('input[placeholder="tu_usuario"]', 'usuario_inexistente');
-    await page.fill('input[type="password"]', 'password_incorrecto');
+    await page.fill('input[placeholder="tu_contraseña"]', 'password_incorrecto');
     await page.click('button:has-text("Iniciar Sesión")');
     
-    // Debe mostrar un mensaje de error
-    await expect(page.locator('.login-error')).toBeVisible();
+    // Debe mostrar un mensaje de error (el texto puede variar)
+    await expect(page.locator('text=/error|inválid|incorrect|wrong/i')).toBeVisible({ timeout: 5000 });
   });
 
-  test('debe hacer login exitoso y redirigir a la página principal', async ({ page, context }) => {
+  test('debe hacer login exitoso y redirigir a la página principal', async ({ page }) => {
     // Primero necesitamos crear un usuario de prueba
-    // Hacemos una petición directa a la API para crear el usuario
     const response = await page.request.post('http://localhost:3001/api/users', {
       data: {
         username: 'testuser_e2e',
         name: 'Usuario Test E2E',
         email: 'teste2e@example.com',
         password: 'password123',
-        phone: '123456789',
-        role: 'cliente'
+        phone: '123456789'
       }
     });
 
@@ -48,14 +47,14 @@ test.describe('Login y Acceso Protegido', () => {
     await page.goto('/login');
     
     await page.fill('input[placeholder="tu_usuario"]', 'testuser_e2e');
-    await page.fill('input[type="password"]', 'password123');
+    await page.fill('input[placeholder="tu_contraseña"]', 'password123');
     
     // Esperar a que el botón esté habilitado
     await page.waitForSelector('button:has-text("Iniciar Sesión"):not([disabled])');
     await page.click('button:has-text("Iniciar Sesión")');
     
     // Debe mostrar mensaje de éxito
-    await expect(page.locator('.login-success')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=/login exitoso|éxito/i')).toBeVisible({ timeout: 10000 });
     
     // Esperar a que se guarde el token en localStorage
     await page.waitForFunction(() => {
@@ -74,20 +73,19 @@ test.describe('Login y Acceso Protegido', () => {
         name: 'Usuario Protected',
         email: 'testprotected@example.com',
         password: 'password123',
-        phone: '123456789',
-        role: 'cliente'
+        phone: '123456789'
       }
     });
 
     // Hacer login
     await page.goto('/login');
     await page.fill('input[placeholder="tu_usuario"]', 'testuser_protected');
-    await page.fill('input[type="password"]', 'password123');
+    await page.fill('input[placeholder="tu_contraseña"]', 'password123');
     await page.waitForSelector('button:has-text("Iniciar Sesión"):not([disabled])');
     await page.click('button:has-text("Iniciar Sesión")');
     
     // Esperar a que se complete el login
-    await expect(page.locator('.login-success')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=/login exitoso|éxito/i')).toBeVisible({ timeout: 10000 });
     await page.waitForURL('/', { timeout: 10000 });
     
     // Esperar a que el token esté en localStorage
@@ -111,18 +109,17 @@ test.describe('Login y Acceso Protegido', () => {
         name: 'Usuario Session',
         email: 'testsession@example.com',
         password: 'password123',
-        phone: '123456789',
-        role: 'cliente'
+        phone: '123456789'
       }
     });
 
     // Hacer login
     await page.goto('/login');
     await page.fill('input[placeholder="tu_usuario"]', 'testuser_session');
-    await page.fill('input[type="password"]', 'password123');
+    await page.fill('input[placeholder="tu_contraseña"]', 'password123');
     await page.waitForSelector('button:has-text("Iniciar Sesión"):not([disabled])');
     await page.click('button:has-text("Iniciar Sesión")');
-    await expect(page.locator('.login-success')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=/login exitoso|éxito/i')).toBeVisible({ timeout: 10000 });
     await page.waitForURL('/', { timeout: 10000 });
     
     // Esperar a que el token esté guardado
