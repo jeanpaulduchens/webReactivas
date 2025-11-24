@@ -27,7 +27,13 @@ cd e2etests
 npm install
 ```
 
-Esto instalará Playwright y sus dependencias, incluyendo los navegadores necesarios (Chromium, Firefox, WebKit).
+Esto instalará Playwright y sus dependencias.
+
+> **⚠️ Nota importante**: Si es la primera vez que usas Playwright, necesitarás instalar los navegadores manualmente:
+> ```bash
+> npx playwright install
+> ```
+> Este comando descargará e instalará los navegadores necesarios (Chromium, Firefox, WebKit). Solo necesitas hacerlo una vez por sistema.
 
 ## 🚀 Ejecutar los Tests
 
@@ -250,6 +256,12 @@ Asegúrate de instalar las dependencias:
 
 ```bash
 npm install
+```
+
+Si el error persiste, instala los navegadores de Playwright:
+
+```bash
+npx playwright install
 ```
 
 ### Los selectores no encuentran elementos
