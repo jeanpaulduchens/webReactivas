@@ -23,7 +23,9 @@ Este proyecto es un **Sistema de Gestión de Reservas para Barbería** que permi
 
 - **Clientes**: Registrarse, ver servicios disponibles, hacer reservas seleccionando barbero, fecha y hora, y gestionar sus reservas (ver, cancelar).
 - **Barberos**: Ver sus reservas confirmadas del día, editar reservas (cambiar fecha/hora) y cancelar reservas asignadas.
-- **Administradores**: Crear y gestionar usuarios (clientes, barberos y otros administradores) desde un panel de administración.
+- **Administradores**: 
+  - Crear y gestionar usuarios (clientes, barberos y otros administradores) desde un panel de administración.
+  - Crear, editar y eliminar servicios de barbería con sus respectivos precios y duraciones.
 
 El sistema maneja tres roles principales (`cliente`, `barbero`, `admin`) con diferentes permisos y vistas según el rol del usuario autenticado.
 
@@ -67,6 +69,16 @@ Gestiona los usuarios en el panel de administración:
   - `createUser()`: Crea un nuevo usuario (solo admin)
   - `clearError()`, `clearSuccess()`: Limpia mensajes
 
+### 4. `servicesStore` (`frontend/src/stores/servicesStore.ts`)
+Gestiona los servicios de barbería en el panel de administración:
+- **Estado**: `services`, `loading`, `error`, `successMessage`
+- **Acciones**:
+  - `fetchServices()`: Obtiene todos los servicios
+  - `createService()`: Crea un nuevo servicio (solo admin)
+  - `updateService()`: Actualiza un servicio existente (solo admin)
+  - `deleteService()`: Elimina un servicio (solo admin)
+  - `clearError()`, `clearSuccess()`: Limpia mensajes
+
 Todos los stores se exportan desde `frontend/src/stores/index.ts` para facilitar su importación.
 
 ## 🗺️ Mapa de Rutas y Flujo de Autenticación
@@ -91,6 +103,10 @@ Todos los stores se exportan desde `frontend/src/stores/index.ts` para facilitar
   - Protegida por `AdminRoute`
   - Permite crear usuarios con cualquier rol (cliente, barbero, admin)
   - Lista todos los usuarios del sistema
+- `/admin/servicios` - Panel de administración de servicios
+  - Protegida por `AdminRoute`
+  - Permite crear, editar y eliminar servicios de barbería
+  - Gestiona precios, duraciones y tipos de servicios
 
 ### Flujo de Autenticación
 
@@ -399,10 +415,67 @@ Respuesta de ejemplo:
 
 ### Servicios
 
-#### Obtener todos los servicios
+#### Obtener todos los servicios (Público)
 
 ```bash
 curl http://localhost:3001/api/services
+```
+
+#### Obtener un servicio por ID (Público)
+
+```bash
+curl http://localhost:3001/api/services/SERVICE_ID
+```
+
+#### Crear un servicio (Requiere Autenticación Admin)
+
+```bash
+curl -X POST http://localhost:3001/api/services \
+  -H "Content-Type: application/json" \
+  -H "X-CSRF-Token: TU_CSRF_TOKEN" \
+  -b "token=TU_TOKEN_JWT" \
+  -d '{
+    "name": "Corte de cabello premium",
+    "type": "hair",
+    "description": "Corte de cabello con acabado profesional",
+    "durationMin": 45,
+    "price": 15.00
+  }'
+```
+
+**Tipos de servicio disponibles:**
+- `hair` - Corte de Cabello
+- `beardeyebrow` - Corte de Barba y Cejas
+- `hairbeard` - Corte de Cabello y Barba
+- `full_service` - Servicio Completo
+
+**Requisitos:**
+- Debes estar autenticado como `admin`
+- El token JWT debe estar en las cookies
+- El CSRF token debe estar en el header `X-CSRF-Token`
+
+#### Actualizar un servicio (Requiere Autenticación Admin)
+
+```bash
+curl -X PUT http://localhost:3001/api/services/SERVICE_ID \
+  -H "Content-Type: application/json" \
+  -H "X-CSRF-Token: TU_CSRF_TOKEN" \
+  -b "token=TU_TOKEN_JWT" \
+  -d '{
+    "name": "Corte de cabello premium actualizado",
+    "price": 18.00,
+    "durationMin": 50
+  }'
+```
+
+**Nota:** Solo necesitas enviar los campos que deseas actualizar.
+
+#### Eliminar un servicio (Requiere Autenticación Admin)
+
+```bash
+curl -X DELETE http://localhost:3001/api/services/SERVICE_ID \
+  -H "X-CSRF-Token: TU_CSRF_TOKEN" \
+  -b "token=TU_TOKEN_JWT"
 ```
 
 ### Reservas
@@ -445,6 +518,16 @@ curl http://localhost:3001/api/hours?barberId=ID_DEL_BARBERO&date=2025-10-25
 3. **Ver Servicios**: Explorar los servicios disponibles
 4. **Hacer Reserva**: Seleccionar servicio, barbero, fecha y hora
 5. **Ver Mis Reservas**: Consultar las reservas realizadas
+
+### Flujo de Administrador
+
+1. **Login**: Iniciar sesión con credenciales de administrador
+2. **Gestión de Usuarios**: Acceder a `/admin/usuarios` para crear y gestionar usuarios del sistema
+3. **Gestión de Servicios**: Acceder a `/admin/servicios` para:
+   - Crear nuevos servicios de barbería con nombre, tipo, descripción, duración y precio
+   - Editar servicios existentes (actualizar precios, duraciones, descripciones)
+   - Eliminar servicios que ya no se ofrecen
+4. **Verificación**: Los servicios creados estarán disponibles para que los clientes los vean y reserven
 
 ### Ejemplo Completo con curl
 
