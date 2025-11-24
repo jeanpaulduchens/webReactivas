@@ -101,21 +101,7 @@ export default function MyBookings() {
           Mis Reservas
         </h2>
 
-        <div className="grid grid-cols-[220px_1fr] gap-6">
-          <div className="w-52 py-4 text-muted">
-            <a className="block py-1.5 font-bold" href="#!">
-              Mis Reservas
-            </a>
-            <a className="block py-1.5" href="#!">
-              Servicios
-            </a>
-            <a className="block py-1.5" href="#!">
-              Clientes
-            </a>
-            <a className="block py-1.5" href="#!">
-              Configuración
-            </a>
-          </div>
+        <div className="w-52 py-4 grid grid-cols-[220px_1fr] gap-6">
 
           <div className="bg-white rounded-card shadow-card p-[18px]">
             <h3 className="font-extrabold text-[26px] mt-0">
