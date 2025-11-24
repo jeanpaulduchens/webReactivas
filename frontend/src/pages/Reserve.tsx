@@ -5,9 +5,10 @@ import {
   getReservationsByDateAndService,
 } from "../api/reservations";
 import { getAllServices } from "../api/services";
+import { getAllBarbers } from "../api/barbers";
 import { useAuthStore } from "../stores";
 import Calendar from "../components/Calendar";
-import type { Service } from "../types";
+import type { Service, User } from "../types";
 
 const HOURS: string[] = [
   "09:00",
@@ -41,6 +42,8 @@ export default function Reservations() {
   const user = useAuthStore((state) => state.user);
   const [services, setServices] = useState<Service[]>([]);
   const [serviceId, setServiceId] = useState<string>("");
+  const [barbers, setBarbers] = useState<User[]>([]);
+  const [barberId, setBarberId] = useState<string>("");
   const [reservedSlots, setReservedSlots] = useState<string[]>([]);
 
   useEffect(() => {
@@ -61,6 +64,14 @@ export default function Reservations() {
         setServiceId(data[0].id || "");
       }
     });
+
+    // Obtener barberos
+    getAllBarbers().then((data) => {
+      setBarbers(data);
+      if (data.length > 0) {
+        setBarberId(data[0].id || "");
+      }
+    });
   }, [location.state]);
 
   useEffect(() => {
@@ -72,12 +83,13 @@ export default function Reservations() {
     );
   }, [serviceId, selectedDate]);
 
-  const canConfirm = user && selectedDate && slot && serviceId;
+  const canConfirm = user && selectedDate && slot && serviceId && barberId;
 
   async function handleConfirm() {
     if (!canConfirm) return;
     const reservation = {
       serviceId,
+      barberId,
       date: selectedDate,
       time: slot || "",
       status: "confirmed",
@@ -120,6 +132,27 @@ export default function Reservations() {
             </option>
           ))}
         </select>
+
+        <h3 className="font-extrabold text-[22px] my-[18px] mx-0">
+          Seleccionar Barbero
+        </h3>
+        {barbers.length > 0 ? (
+          <select
+            className="w-full h-10 border border-gray-200 rounded-[10px] px-3 bg-white outline-none focus:border-indigo-300 focus:shadow-[0_0_0_3px_#e0e7ff]"
+            value={barberId}
+            onChange={(e) => setBarberId(e.target.value)}
+          >
+            {barbers.map((b) => (
+              <option key={b.id} value={b.id}>
+                {b.name} {b.phone && `• ${b.phone}`}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-[10px] text-yellow-800 text-sm">
+            No hay barberos disponibles en este momento.
+          </div>
+        )}
 
         <h3 className="font-extrabold text-[22px] my-[18px] mx-0">
           Fecha y Hora

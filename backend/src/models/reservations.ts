@@ -5,6 +5,7 @@ export interface ReservationData {
   id: string;
   user: mongoose.Types.ObjectId;
   service: mongoose.Types.ObjectId;
+  barber?: mongoose.Types.ObjectId; // Barbero asignado (opcional)
   date: Date;
   time: string;
   status: ReservationStatus;
@@ -23,6 +24,11 @@ const reservationSchema = new mongoose.Schema<ReservationData>(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Service",
       required: true,
+    },
+    barber: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: false, // Opcional por ahora
     },
     date: {
       type: Date,

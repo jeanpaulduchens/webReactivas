@@ -5,6 +5,7 @@ const baseUrl = "/api/reservations";
 
 export async function createReservation(reservation: {
   serviceId: string;
+  barberId?: string;
   date: string;
   time: string;
   status?: string;

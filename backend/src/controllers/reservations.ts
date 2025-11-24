@@ -120,7 +120,7 @@ router.get("/my-reservations", withUser, async (req, res) => {
 // Crear una nueva reserva (requiere autenticación)
 router.post("/", withUser, async (req, res) => {
   try {
-    const { serviceId, date, time, status } = req.body;
+    const { serviceId, barberId, date, time, status } = req.body;
     const userId = req.userId; // ID del usuario autenticado
 
     if (!userId) {
@@ -133,6 +133,18 @@ router.post("/", withUser, async (req, res) => {
       return res.status(400).json({ error: "Servicio no encontrado" });
     }
 
+    // Si se proporciona un barbero, verificar que existe y es barbero
+    let barber = null;
+    if (barberId) {
+      barber = await User.findById(barberId);
+      if (!barber) {
+        return res.status(400).json({ error: "Barbero no encontrado" });
+      }
+      if (barber.role !== 'barbero') {
+        return res.status(400).json({ error: "El usuario seleccionado no es un barbero" });
+      }
+    }
+
     // Parsear la fecha en UTC para evitar problemas de zona horaria
     // Si date viene como "2025-11-25", lo convertimos a Date en UTC
     const reservationDate = new Date(date + "T00:00:00.000Z");
@@ -141,6 +153,7 @@ router.post("/", withUser, async (req, res) => {
     const newReservation = new Reservation({
       user: userId,
       service: service._id,
+      barber: barber ? barber._id : undefined,
       date: reservationDate,
       time,
       status: status || "confirmed", // Cambiar default a "confirmed" para que aparezcan en la vista del barbero

@@ -16,6 +16,16 @@ router.get(
   },
 );
 
+// GET /api/users/barbers - Obtener todos los barberos (público, para selección en reservas)
+router.get("/barbers", async (request: Request, response: Response) => {
+  try {
+    const barbers = await User.find({ role: 'barbero' }).select('id username name email phone');
+    response.json(barbers);
+  } catch (error: any) {
+    response.status(500).json({ error: "Error al obtener los barberos" });
+  }
+});
+
 // POST /api/users - Registro público (solo puede crear clientes)
 router.post("/", async (request: Request, response: Response) => {
   const { username, name, email, password, phone, role } = request.body;
