@@ -25,7 +25,7 @@ router.get("/", async (req, res) => {
 });
 
 // GET /api/reservations/confirmed-by-day?date=YYYY-MM-DD
-// Endpoint específico para obtener todas las citas confirmadas de un día (para barberos)
+// Endpoint específico para obtener todas las citas de un día (confirmadas y canceladas) para barberos
 router.get(
   "/confirmed-by-day",
   withUser,
@@ -33,6 +33,7 @@ router.get(
   async (req, res) => {
     try {
       const { date } = req.query;
+      const barberId = req.userId;
 
       if (!date || typeof date !== "string") {
         return res
@@ -45,9 +46,11 @@ router.get(
       const start = new Date(date + "T00:00:00.000Z");
       const end = new Date(date + "T23:59:59.999Z");
 
+      // Buscar reservas del día asignadas a este barbero (confirmadas y canceladas)
       const reservations = await Reservation.find({
         date: { $gte: start, $lte: end },
-        status: ReservationStatus.CONFIRMED,
+        barber: barberId,
+        status: { $in: [ReservationStatus.CONFIRMED, ReservationStatus.CANCELLED] },
       })
         .populate("user", "name email phone")
         .populate("service", "name type description price durationMin")
@@ -77,7 +80,7 @@ router.get(
 
       res.json(formattedReservations);
     } catch (error) {
-      console.error("Error obteniendo citas confirmadas:", error);
+      console.error("Error obteniendo citas del día:", error);
       res.status(500).json({ error: "Error interno del servidor" });
     }
   },
@@ -172,20 +175,29 @@ router.post("/", withUser, async (req, res) => {
 });
 
 // Actualizar una reserva (requiere autenticación)
+// Puede ser editada por el cliente (dueño) o por el barbero asignado
 router.put("/:id", withUser, async (req, res) => {
   try {
     const { id } = req.params;
     const { serviceId, date, time, status } = req.body;
     const userId = req.userId;
+    const userRole = req.userRole;
 
-    // Buscar la reserva
-    const reservation = await Reservation.findById(id);
+    // Buscar la reserva y poblar el barbero
+    const reservation = await Reservation.findById(id).populate('barber');
     if (!reservation) {
       return res.status(404).json({ error: "Reserva no encontrada" });
     }
 
-    // Verificar que el usuario es el dueño de la reserva
-    if (reservation.user.toString() !== userId) {
+    // Verificar permisos: el cliente puede editar su reserva, o el barbero asignado puede editar
+    const isOwner = reservation.user.toString() === userId;
+    const isAssignedBarber = reservation.barber && 
+      typeof reservation.barber === 'object' && 
+      '_id' in reservation.barber &&
+      reservation.barber._id.toString() === userId;
+    const isAdmin = userRole === 'admin';
+
+    if (!isOwner && !isAssignedBarber && !isAdmin) {
       return res
         .status(403)
         .json({ error: "No tienes permiso para editar esta reserva" });
@@ -213,27 +225,43 @@ router.put("/:id", withUser, async (req, res) => {
   }
 });
 
-// Eliminar una reserva (requiere autenticación)
+// Cancelar una reserva (requiere autenticación)
+// Puede ser cancelada por el cliente (dueño) o por el barbero asignado
+// En lugar de eliminar, cambia el status a "cancelled"
 router.delete("/:id", withUser, async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.userId;
+    const userRole = req.userRole;
 
-    // Buscar la reserva
-    const reservation = await Reservation.findById(id);
+    // Buscar la reserva y poblar el barbero
+    const reservation = await Reservation.findById(id).populate('barber');
     if (!reservation) {
       return res.status(404).json({ error: "Reserva no encontrada" });
     }
 
-    // Verificar que el usuario es el dueño de la reserva
-    if (reservation.user.toString() !== userId) {
+    // Verificar permisos: el cliente puede cancelar su reserva, o el barbero asignado puede cancelar
+    const isOwner = reservation.user.toString() === userId;
+    const isAssignedBarber = reservation.barber && 
+      typeof reservation.barber === 'object' && 
+      '_id' in reservation.barber &&
+      reservation.barber._id.toString() === userId;
+    const isAdmin = userRole === 'admin';
+
+    if (!isOwner && !isAssignedBarber && !isAdmin) {
       return res
         .status(403)
-        .json({ error: "No tienes permiso para eliminar esta reserva" });
+        .json({ error: "No tienes permiso para cancelar esta reserva" });
     }
 
-    await Reservation.findByIdAndDelete(id);
-    res.status(204).send();
+    // Cambiar el status a cancelled en lugar de eliminar
+    reservation.status = ReservationStatus.CANCELLED;
+    await reservation.save();
+
+    res.status(200).json({ 
+      message: "Reserva cancelada exitosamente",
+      reservation 
+    });
   } catch (error) {
     res.status(400).json({ error: error });
   }

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Calendar from "../components/Calendar";
+import ReservationRow from "../components/ReservationRow";
 import { useAuthStore, useReservationsStore } from "../stores";
 
 export default function MyBookings() {
@@ -22,6 +23,9 @@ export default function MyBookings() {
     selectedDate,
     fetchClientReservations,
     fetchBarberReservations,
+    updateBarberReservation,
+    cancelBarberReservation,
+    deleteClientReservation,
     setSelectedDate,
   } = useReservationsStore();
 
@@ -45,6 +49,23 @@ export default function MyBookings() {
     fetchClientReservations,
     fetchBarberReservations,
   ]);
+
+  // Recargar reservas periódicamente para ver cambios
+  useEffect(() => {
+    if (userRole === "cliente") {
+      const interval = setInterval(() => {
+        fetchClientReservations();
+      }, 30000); // Recargar cada 30 segundos
+
+      return () => clearInterval(interval);
+    } else if (userRole === "barbero") {
+      const interval = setInterval(() => {
+        fetchBarberReservations(selectedDate);
+      }, 30000); // Recargar cada 30 segundos
+
+      return () => clearInterval(interval);
+    }
+  }, [userRole, selectedDate, fetchClientReservations, fetchBarberReservations]);
 
   const formatDate = (dateInput: string | Date) => {
     // Manejar tanto strings como objetos Date
@@ -77,7 +98,7 @@ export default function MyBookings() {
     return (
       <div>
         <h2 className="text-lg font-extrabold my-[18px] mx-0">
-          Mis Reservas Confirmadas
+          Mis Reservas
         </h2>
 
         <div className="grid grid-cols-[220px_1fr] gap-6">
@@ -98,7 +119,7 @@ export default function MyBookings() {
 
           <div className="bg-white rounded-card shadow-card p-[18px]">
             <h3 className="font-extrabold text-[26px] mt-0">
-              Mis Reservas Confirmadas
+              Reservas del Día
             </h3>
 
             <div className="grid grid-cols-[380px_1fr] gap-6">
@@ -117,7 +138,7 @@ export default function MyBookings() {
                   Citas del {formatDate(selectedDate)}
                 </h4>
                 <p className="mt-0 mb-4 text-muted text-sm">
-                  Aquí tienes un resumen de tus citas confirmadas y programadas.
+                  Aquí tienes un resumen de tus citas confirmadas y canceladas del día seleccionado.
                 </p>
 
                 {barberLoading && (
@@ -147,48 +168,31 @@ export default function MyBookings() {
                             Servicio
                           </th>
                           <th className="text-left p-3 font-semibold text-sm">
+                            Fecha
+                          </th>
+                          <th className="text-left p-3 font-semibold text-sm">
                             Estado
+                          </th>
+                          <th className="text-left p-3 font-semibold text-sm">
+                            Acciones
                           </th>
                         </tr>
                       </thead>
                       <tbody>
                         {barberReservations.map((reservation) => (
-                          <tr
+                          <ReservationRow
                             key={reservation.id}
-                            className="border-b border-gray-100 hover:bg-gray-50 transition"
-                          >
-                            <td className="p-3 text-sm font-medium">
-                              {reservation.time}
-                            </td>
-                            <td className="p-3 text-sm">
-                              <div className="font-semibold">
-                                {reservation.client.name}
-                              </div>
-                              <div className="text-xs text-muted">
-                                {reservation.client.phone ||
-                                  reservation.client.email}
-                              </div>
-                            </td>
-                            <td className="p-3 text-sm">
-                              <div className="font-medium">
-                                {reservation.service.name}
-                              </div>
-                              <div className="text-xs text-muted">
-                                {reservation.service.durationMin} min · $
-                                {reservation.service.price}
-                              </div>
-                            </td>
-                            <td className="p-3 text-sm">
-                              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 capitalize inline-block">
-                                {reservation.status}
-                              </span>
-                            </td>
-                          </tr>
+                            reservation={reservation}
+                            selectedDate={selectedDate}
+                            onUpdate={updateBarberReservation}
+                            onCancel={cancelBarberReservation}
+                            onRefresh={() => fetchBarberReservations(selectedDate)}
+                          />
                         ))}
                         {barberReservations.length === 0 && (
                           <tr>
                             <td
-                              colSpan={4}
+                              colSpan={5}
                               className="py-8 text-center text-muted text-sm"
                             >
                               No hay citas confirmadas para este día.
@@ -249,36 +253,72 @@ export default function MyBookings() {
                 <th className="pb-3">Duración</th>
                 <th className="pb-3">Precio</th>
                 <th className="pb-3">Estado</th>
+                <th className="pb-3">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {clientReservations.map((reservation) => (
-                <tr key={reservation.id} className="border-t border-gray-200">
-                  <td className="py-3 text-sm">
-                    {formatDate(reservation.date)}
-                  </td>
-                  <td className="py-3 text-sm">{reservation.time}</td>
-                  <td className="py-3 text-sm">
-                    <div>{reservation.service.name}</div>
-                    <div className="text-xs text-muted">
-                      {reservation.service.type}
-                    </div>
-                  </td>
-                  <td className="py-3 text-sm">
-                    {reservation.service.durationMin} min
-                  </td>
-                  <td className="py-3 text-sm">${reservation.service.price}</td>
-                  <td className="py-3 text-sm">
-                    <span className="text-green-600 text-[13px] font-semibold capitalize">
-                      {reservation.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
+              {clientReservations.map((reservation) => {
+                const handleCancel = async () => {
+                  if (!confirm("¿Estás seguro de que deseas cancelar esta reserva?")) {
+                    return;
+                  }
+                  try {
+                    await deleteClientReservation(reservation.id);
+                    alert("Reserva cancelada exitosamente");
+                  } catch (err: any) {
+                    const errorMessage = err.response?.data?.error || "Error al cancelar la reserva";
+                    alert(errorMessage);
+                  }
+                };
+
+                return (
+                  <tr key={reservation.id} className="border-t border-gray-200">
+                    <td className="py-3 text-sm">
+                      {formatDate(reservation.date)}
+                    </td>
+                    <td className="py-3 text-sm">{reservation.time}</td>
+                    <td className="py-3 text-sm">
+                      <div>{reservation.service.name}</div>
+                      <div className="text-xs text-muted">
+                        {reservation.service.type}
+                      </div>
+                    </td>
+                    <td className="py-3 text-sm">
+                      {reservation.service.durationMin} min
+                    </td>
+                    <td className="py-3 text-sm">${reservation.service.price}</td>
+                    <td className="py-3 text-sm">
+                      <span className={`text-[13px] font-semibold capitalize px-2 py-1 rounded ${
+                        reservation.status === 'confirmed' 
+                          ? 'text-green-600 bg-green-50' 
+                          : reservation.status === 'cancelled' 
+                          ? 'text-red-600 bg-red-50' 
+                          : 'text-yellow-600 bg-yellow-50'
+                      }`}>
+                        {reservation.status === 'confirmed' 
+                          ? 'Confirmada' 
+                          : reservation.status === 'cancelled' 
+                          ? 'Cancelada' 
+                          : 'Pendiente'}
+                      </span>
+                    </td>
+                    <td className="py-3 text-sm">
+                      {reservation.status !== "cancelled" && (
+                        <button
+                          className="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600"
+                          onClick={handleCancel}
+                        >
+                          Cancelar
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
               {clientReservations.length === 0 && (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="py-6 text-center text-muted text-sm"
                   >
                     No tienes reservas aún. ¡Agenda tu primera cita!

@@ -4,7 +4,11 @@ import {
   updateReservation,
   deleteReservation,
 } from "../api/clientReservations";
-import { getConfirmedReservationsByDay } from "../api/barberReservations";
+import { 
+  getConfirmedReservationsByDay,
+  updateBarberReservation,
+  cancelBarberReservation
+} from "../api/barberReservations";
 import type { ClientReservation, BarberReservation } from "../types";
 
 interface ReservationsState {
@@ -30,6 +34,8 @@ interface ReservationsState {
 
   // Acciones para barberos
   fetchBarberReservations: (date: string) => Promise<void>;
+  updateBarberReservation: (id: string, data: { date?: string; time?: string; status?: string }) => Promise<void>;
+  cancelBarberReservation: (id: string) => Promise<void>;
   setSelectedDate: (date: string) => void;
   clearBarberReservations: () => void;
 
@@ -91,20 +97,16 @@ export const useReservationsStore = create<ReservationsState>((set, get) => ({
     }
   },
 
-  // Eliminar reserva de cliente
+  // Cancelar reserva de cliente (cambia status a cancelled)
   deleteClientReservation: async (id: string) => {
     set({ clientLoading: true, clientError: null });
     try {
       await deleteReservation(id);
-      // Remover la reserva del estado local
-      set((state) => ({
-        clientReservations: state.clientReservations.filter((r) => r.id !== id),
-        clientLoading: false,
-        clientError: null,
-      }));
+      // Recargar las reservas para reflejar el cambio de estado
+      await get().fetchClientReservations();
     } catch (err: any) {
       const errorMessage =
-        err.response?.data?.error || "Error al eliminar la reserva";
+        err.response?.data?.error || "Error al cancelar la reserva";
       set({
         clientLoading: false,
         clientError: errorMessage,
@@ -140,6 +142,42 @@ export const useReservationsStore = create<ReservationsState>((set, get) => ({
         barberLoading: false,
         barberError: errorMessage,
       });
+    }
+  },
+
+  // Actualizar reserva de barbero
+  updateBarberReservation: async (id: string, data: { date?: string; time?: string; status?: string }) => {
+    set({ barberLoading: true, barberError: null });
+    try {
+      await updateBarberReservation(id, data);
+      // Recargar las reservas después de actualizar
+      const currentDate = get().selectedDate;
+      await get().fetchBarberReservations(currentDate);
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.error || 'Error al actualizar la reserva';
+      set({
+        barberLoading: false,
+        barberError: errorMessage,
+      });
+      throw err;
+    }
+  },
+
+  // Cancelar reserva de barbero
+  cancelBarberReservation: async (id: string) => {
+    set({ barberLoading: true, barberError: null });
+    try {
+      await cancelBarberReservation(id);
+      // Recargar las reservas después de cancelar
+      const currentDate = get().selectedDate;
+      await get().fetchBarberReservations(currentDate);
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.error || 'Error al cancelar la reserva';
+      set({
+        barberLoading: false,
+        barberError: errorMessage,
+      });
+      throw err;
     }
   },
 
