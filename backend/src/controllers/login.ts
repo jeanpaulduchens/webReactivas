@@ -12,7 +12,7 @@ router.post("/", async (request: Request, response: Response) => {
   const { username, password } = request.body;
 
   const user = await User.findOne({ username });
-  
+
   if (!user) {
     return response.status(401).json({
       error: "invalid username or password",
@@ -44,29 +44,26 @@ router.post("/", async (request: Request, response: Response) => {
     secure: process.env.NODE_ENV === "production",
   });
 
-  response.status(200).json({ 
-    username: user.username, 
+  response.status(200).json({
+    username: user.username,
     name: user.name,
     email: user.email,
     role: user.role,
-    id: user.id
+    id: user.id,
   });
 });
-
 
 router.post("/logout", (request: Request, response: Response) => {
   response.clearCookie("token");
   response.status(200).json({
-    message: "Logged out successfully"
+    message: "Logged out successfully",
   });
 });
-
 
 // Verificar sesión actual
 router.get("/me", withUser, async (request: Request, response: Response) => {
   const user = await User.findById(request.userId);
   response.status(200).json(user);
 });
-
 
 export default router;

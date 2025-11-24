@@ -1,30 +1,30 @@
 import { getAllServices } from "@api/services";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Hero from "../components/Hero";
 import ServiceGrid from "../components/ServiceGrid";
 import type { Service } from "../types";
 
-interface ServicesProps {
-  onGoReservas?: () => void;
-}
-
-export default function Services({ onGoReservas }: ServicesProps) {
+export default function Services() {
   const [services, setServices] = useState<Service[]>([]);
+  const navigate = useNavigate();
+
   useEffect(() => {
     getAllServices().then((data) => {
       setServices(data);
     });
   }, []);
 
-  function handleReserve(_svc: Service) {
-    // por ahora solo navegamos a la vista de reservas
-    if (onGoReservas) onGoReservas();
+  function handleReserve(service: Service) {
+    // Navegar a la vista de reservas pasando el servicio seleccionado
+    navigate("/reservas", { state: { selectedService: service } });
   }
+
   console.log(services);
   return (
     <>
       <Hero />
-      <h2 className="section-title">Nuestros Servicios</h2>
+      <h2 className="text-lg font-black my-4">Nuestros Servicios</h2>
       <ServiceGrid services={services} onReserve={handleReserve} />
     </>
   );

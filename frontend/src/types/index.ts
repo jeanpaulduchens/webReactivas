@@ -23,7 +23,8 @@ export interface User {
   username: string;
   email: string;
   name: string;
-  role?: 'cliente' | 'barbero';
+  phone?: string;
+  role?: "cliente" | "barbero" | "admin";
 }
 
 export interface LoginCredentials {
@@ -59,5 +60,14 @@ export interface BarberReservation {
   time: string;
   status: ReservationStatus;
   client: BarberReservationClient;
+  service: BarberReservationService;
+}
+
+// Interface para las reservas de los clientes (mis reservas)
+export interface ClientReservation {
+  id: string;
+  date: string;
+  time: string;
+  status: ReservationStatus;
   service: BarberReservationService;
 }

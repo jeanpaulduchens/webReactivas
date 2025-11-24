@@ -1,34 +1,55 @@
-//TODO CONECTAR A BACKEND
-import { useState } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import Layout from "./components/Layout";
 import Services from "./pages/Services";
 import Reservations from "./pages/Reserve";
 import MyBookings from "./pages/MyReserve";
 import Login from "./pages/Login";
-import './style.css'
-
-type View = "services" | "reservas" | "mis-reservas" | "login";
+import Register from "./pages/Register";
+import AdminUsers from "./pages/AdminUsers";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 
 function App() {
-  const [view, setView] = useState<View>("services");
-
   return (
-    <div className="container">
-      <div className="navbar">
-        <button className="brand" onClick={() => setView("services")}>BarberBook</button>
-        <span style={{color:"#9ca3af"}}>/</span>
-        <nav style={{display:"flex", gap:12}}>
-          <button onClick={() => setView("services")}>Servicios</button>
-          <button onClick={() => setView("reservas")}>Reservas</button>
-          <button onClick={() => setView("mis-reservas")}>Mis reservas</button>
-          <button onClick={() => setView("login")}>Login</button>
-        </nav>
-      </div>
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        {/* Rutas públicas */}
+        <Route index element={<Services />} />
+        <Route path="login" element={<Login />} />
+        <Route path="register" element={<Register />} />
 
-      {view === "services" && <Services onGoReservas={() => setView("reservas")} />}
-      {view === "reservas" && <Reservations onBack={() => setView("services")} />}
-      {view === "mis-reservas" && <MyBookings onBack={() => setView("services")} />}
-      {view === "login" && <Login onBack={() => setView("services")} />}
-    </div>
+        {/* Rutas protegidas */}
+        <Route
+          path="reservas"
+          element={
+            <ProtectedRoute>
+              <Reservations />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="mis-reservas"
+          element={
+            <ProtectedRoute>
+              <MyBookings />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Rutas de administración */}
+        <Route
+          path="admin/usuarios"
+          element={
+            <AdminRoute>
+              <AdminUsers />
+            </AdminRoute>
+          }
+        />
+
+        {/* Ruta por defecto - redirige a home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Route>
+    </Routes>
   );
 }
 

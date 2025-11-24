@@ -4,6 +4,11 @@ Sistema web completo para gestión de reservas en una barbería, desarrollado co
 
 ## 📋 Tabla de Contenidos
 
+- [Tema General del Proyecto](#tema-general-del-proyecto)
+- [Estructura del Estado Global](#estructura-del-estado-global)
+- [Mapa de Rutas y Flujo de Autenticación](#mapa-de-rutas-y-flujo-de-autenticación)
+- [Tests E2E](#tests-e2e)
+- [Librería de Estilos](#librería-de-estilos)
 - [Requisitos Previos](#requisitos-previos)
 - [Estructura del Proyecto](#estructura-del-proyecto)
 - [Instalación](#instalación)
@@ -11,6 +16,191 @@ Sistema web completo para gestión de reservas en una barbería, desarrollado co
 - [Ejecución](#ejecución)
 - [API Endpoints](#api-endpoints)
 - [Uso](#uso)
+
+## 🎯 Tema General del Proyecto
+
+Este proyecto es un **Sistema de Gestión de Reservas para Barbería** que permite:
+
+- **Clientes**: Registrarse, ver servicios disponibles, hacer reservas seleccionando barbero, fecha y hora, y gestionar sus reservas (ver, cancelar).
+- **Barberos**: Ver sus reservas confirmadas del día, editar reservas (cambiar fecha/hora) y cancelar reservas asignadas.
+- **Administradores**: Crear y gestionar usuarios (clientes, barberos y otros administradores) desde un panel de administración.
+
+El sistema maneja tres roles principales (`cliente`, `barbero`, `admin`) con diferentes permisos y vistas según el rol del usuario autenticado.
+
+## 🗂️ Estructura del Estado Global
+
+El proyecto utiliza **Zustand** (v5.0.8) como librería de manejo de estado global. Se implementaron tres stores principales:
+
+### 1. `authStore` (`frontend/src/stores/authStore.ts`)
+Gestiona el estado de autenticación del usuario:
+- **Estado**: `user`, `isAuthenticated`, `csrfToken`, `isLoading`, `error`
+- **Acciones**:
+  - `login()`: Inicia sesión con credenciales
+  - `logout()`: Cierra sesión y limpia el estado
+  - `restoreSession()`: Restaura la sesión desde localStorage
+  - `setUser()`: Actualiza el usuario actual
+  - `clearError()`: Limpia errores
+- **Persistencia**: Usa `zustand/middleware/persist` para guardar en `localStorage`
+
+### 2. `reservationsStore` (`frontend/src/stores/reservationsStore.ts`)
+Gestiona las reservas tanto para clientes como para barberos:
+- **Estado para Clientes**:
+  - `clientReservations`: Lista de reservas del cliente
+  - `clientLoading`, `clientError`
+- **Estado para Barberos**:
+  - `barberReservations`: Lista de reservas del barbero por fecha
+  - `barberLoading`, `barberError`, `selectedDate`
+- **Acciones para Clientes**:
+  - `fetchClientReservations()`: Obtiene todas las reservas del cliente
+  - `updateClientReservation()`: Actualiza una reserva del cliente
+  - `deleteClientReservation()`: Cancela una reserva del cliente
+- **Acciones para Barberos**:
+  - `fetchBarberReservations(date)`: Obtiene reservas del barbero para una fecha
+  - `updateBarberReservation()`: Actualiza una reserva (fecha/hora/estado)
+  - `cancelBarberReservation()`: Cancela una reserva asignada al barbero
+
+### 3. `usersStore` (`frontend/src/stores/usersStore.ts`)
+Gestiona los usuarios en el panel de administración:
+- **Estado**: `users`, `loading`, `error`, `successMessage`
+- **Acciones**:
+  - `fetchUsers()`: Obtiene todos los usuarios
+  - `createUser()`: Crea un nuevo usuario (solo admin)
+  - `clearError()`, `clearSuccess()`: Limpia mensajes
+
+Todos los stores se exportan desde `frontend/src/stores/index.ts` para facilitar su importación.
+
+## 🗺️ Mapa de Rutas y Flujo de Autenticación
+
+### Rutas Públicas
+- `/` - Página principal (lista de servicios)
+- `/login` - Inicio de sesión
+- `/register` - Registro de nuevos usuarios (solo clientes)
+
+### Rutas Protegidas (Requieren Autenticación)
+- `/reservas` - Crear una nueva reserva
+  - Protegida por `ProtectedRoute`
+  - Requiere usuario autenticado (cualquier rol)
+- `/mis-reservas` - Ver y gestionar reservas propias
+  - Protegida por `ProtectedRoute`
+  - Vista diferente según el rol:
+    - **Cliente**: Lista todas sus reservas con opción de cancelar
+    - **Barbero**: Vista de calendario con reservas del día seleccionado, permite editar y cancelar
+
+### Rutas de Administración (Requieren Rol Admin)
+- `/admin/usuarios` - Panel de administración de usuarios
+  - Protegida por `AdminRoute`
+  - Permite crear usuarios con cualquier rol (cliente, barbero, admin)
+  - Lista todos los usuarios del sistema
+
+### Flujo de Autenticación
+
+1. **Inicio de Sesión**:
+   - Usuario ingresa credenciales en `/login`
+   - Backend valida y retorna JWT token + CSRF token
+   - `authStore.login()` guarda tokens y datos del usuario
+   - Redirección a página principal o ruta protegida solicitada
+
+2. **Protección de Rutas**:
+   - `ProtectedRoute` verifica `isAuthenticated` del `authStore`
+   - Si no está autenticado, redirige a `/login`
+   - `AdminRoute` además verifica que `user.role === 'admin'`
+
+3. **Restauración de Sesión**:
+   - Al cargar la app, `AppWithAuth` llama a `restoreSession()`
+   - Verifica tokens en `localStorage` y valida con el backend
+   - Si la sesión es válida, restaura el estado de autenticación
+
+4. **Cierre de Sesión**:
+   - `authStore.logout()` limpia tokens y estado
+   - Elimina datos de `localStorage`
+   - Redirige a página principal
+
+### Componentes de Protección
+- `ProtectedRoute`: Verifica autenticación, redirige a `/login` si no está autenticado
+- `AdminRoute`: Verifica autenticación Y rol admin, redirige a `/` si no es admin
+
+## 🧪 Tests E2E
+
+### Herramienta Utilizada
+El proyecto utiliza **Playwright** para tests end-to-end. Los tests se encuentran en la carpeta `e2etests/` y se ejecutan de forma independiente.
+
+### Configuración
+- **Base URL**: `http://localhost:5173` (frontend)
+- **Web Server**: Configurado para iniciar automáticamente backend (puerto 3001) y frontend (puerto 5173)
+- **Navegadores**: Chromium, Firefox, WebKit (configurables)
+
+### Flujos Cubiertos
+
+#### 1. Login y Acceso Protegido (`e2etests/tests/login.spec.ts`)
+- ✅ **Redirección a login**: Verifica que al acceder a rutas protegidas sin autenticación, se redirige a `/login`
+- ✅ **Credenciales inválidas**: Prueba el manejo de errores con credenciales incorrectas
+- ✅ **Login exitoso**: Valida el flujo completo de login y redirección a página principal
+- ✅ **Acceso a rutas protegidas**: Verifica que después del login se puede acceder a rutas protegidas
+- ✅ **Persistencia de sesión**: Comprueba que la sesión se mantiene al recargar la página
+
+#### 2. CRUD de Reservas (`e2etests/tests/reservations-crud.spec.ts`)
+- ✅ **CREATE**: Crea una nueva reserva desde la UI (selecciona servicio, barbero, fecha y hora)
+- ✅ **READ**: Lista las reservas del usuario autenticado
+- ✅ **UPDATE**: Actualiza una reserva existente (cambia hora y estado)
+- ✅ **DELETE**: Elimina una reserva existente
+- ✅ **Flujo completo**: Ejecuta un flujo completo de CRUD en la UI
+
+### Ejecución de Tests
+```bash
+cd e2etests
+npm install
+npm test              # Ejecuta todos los tests en modo headless
+npm run test:ui       # Abre la UI de Playwright
+npm run test:headed   # Ejecuta con navegador visible
+npm run test:debug    # Modo debug con inspector
+```
+
+Los tests crean usuarios de prueba automáticamente y esperan a que los servidores estén listos antes de ejecutarse.
+
+## 🎨 Librería de Estilos
+
+### Tailwind CSS v4
+El proyecto utiliza **Tailwind CSS v4.1.17** como framework de estilos utilitarios.
+
+### Configuración Personalizada
+El tema se define en `frontend/src/style.css` y `frontend/tailwind.config.js`:
+
+```css
+@theme {
+  --color-primary: #1e3a8a;        /* Azul principal */
+  --color-primary-600: #1f4aa6;     /* Azul más oscuro para hover */
+  --color-muted: #6b7280;          /* Gris para texto secundario */
+  --color-bg: #f5f6fa;             /* Fondo gris claro */
+  --radius-card: 14px;             /* Radio de borde para tarjetas */
+  --shadow-card: 0 6px 18px rgba(16, 24, 40, 0.08); /* Sombra suave */
+}
+```
+
+### Decisiones de Diseño
+
+1. **Sistema de Colores**:
+   - **Primario**: Azul (`#1e3a8a`) para botones principales y elementos destacados
+   - **Muted**: Gris para texto secundario y elementos deshabilitados
+   - **Estados**: Verde para confirmado, rojo para cancelado, amarillo para pendiente
+
+2. **Componentes Reutilizables**:
+   - Tarjetas con `rounded-card` (14px) y `shadow-card` para profundidad
+   - Botones con estados hover usando `primary-600`
+   - Inputs con focus states usando `border-indigo-300` y sombras
+
+3. **Layout**:
+   - Grid system de Tailwind para layouts responsivos
+   - Espaciado consistente usando las utilidades de Tailwind
+   - Diseño mobile-first
+
+4. **Tipografía**:
+   - Tamaños de fuente escalables usando clases de Tailwind
+   - Pesos de fuente: `font-bold` para títulos, `font-semibold` para subtítulos
+
+5. **Interactividad**:
+   - Transiciones suaves en botones y elementos interactivos
+   - Estados hover claramente definidos
+   - Feedback visual inmediato en acciones del usuario
 
 ## 🔧 Requisitos Previos
 
@@ -121,7 +311,9 @@ npm start
 
 ### Usuarios
 
-#### Crear Usuario (Registro)
+#### Crear Usuario (Registro Público - Solo Clientes)
+
+Este endpoint solo permite crear usuarios con rol `cliente`. Para crear barberos o admins, usar el endpoint `/api/users/admin`.
 
 ```bash
 curl -X POST http://localhost:3001/api/users \
@@ -131,15 +323,58 @@ curl -X POST http://localhost:3001/api/users \
     "name": "Juan Pérez",
     "email": "juan@mail.com",
     "password": "password123",
+    "phone": "123456789"
+  }'
+```
+
+**Nota:** El rol siempre será `cliente` para este endpoint, incluso si se intenta especificar otro rol.
+
+#### Crear el Primer Administrador
+
+Este endpoint solo funciona si NO existe ningún admin en el sistema. Úsalo para crear el primer administrador.
+
+```bash
+curl -X POST http://localhost:3001/api/users/first-admin \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "admin1",
+    "name": "Administrador Principal",
+    "email": "admin@mail.com",
+    "password": "password123",
+    "phone": "123456789"
+  }'
+```
+
+**Nota:** Este endpoint solo funciona una vez. Después de crear el primer admin, debes usar `/api/users/admin` con autenticación.
+
+#### Crear Usuario como Admin (Requiere Autenticación Admin)
+
+Este endpoint permite a los administradores crear usuarios con cualquier rol (cliente, barbero, admin).
+
+```bash
+curl -X POST http://localhost:3001/api/users/admin \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "X-CSRF-Token: TU_CSRF_TOKEN" \
+  -d '{
+    "username": "barbero1",
+    "name": "Barbero Ejemplo",
+    "email": "barbero@mail.com",
+    "password": "password123",
     "phone": "123456789",
-    "role": "cliente"
+    "role": "barbero"
   }'
 ```
 
 **Roles disponibles:**
 - `cliente` - Usuario regular que puede hacer reservas
-- `barbero` - Barbero que atiende reservas
-- `admin` - Administrador del sistema
+- `barbero` - Barbero que atiende reservas (solo puede ser creado por admin)
+- `admin` - Administrador del sistema (solo puede ser creado por otro admin)
+
+**Requisitos:**
+- Debes estar autenticado como `admin`
+- El token JWT debe estar en las cookies
+- El CSRF token debe estar en el header `X-CSRF-Token`
 
 #### Login
 
@@ -269,6 +504,52 @@ curl http://localhost:3001/api/reservations \
 - `npm run build` - Construye la aplicación para producción
 - `npm run preview` - Previsualiza la build de producción
 - `npm run lint` - Ejecuta el linter
+
+## 🧪 Tests E2E
+
+El proyecto incluye tests end-to-end (E2E) implementados con **Playwright** que validan el funcionamiento completo de la aplicación.
+
+### Casos Cubiertos
+
+Los tests se encuentran en la carpeta `e2etests/` y cubren los siguientes casos mínimos:
+
+1. **Login + Acceso Protegido** (`e2etests/tests/login.spec.ts`)
+   - Redirección a login cuando se accede a ruta protegida sin autenticación
+   - Manejo de credenciales inválidas
+   - Login exitoso y acceso a rutas protegidas
+   - Persistencia de sesión
+
+2. **CRUD sobre Reservas** (`e2etests/tests/reservations-crud.spec.ts`)
+   - **CREATE**: Crear una nueva reserva desde la UI
+   - **READ**: Listar las reservas del usuario
+   - **UPDATE**: Actualizar una reserva existente
+   - **DELETE**: Eliminar una reserva existente
+   - Flujo completo de CRUD en la UI
+
+### Ejecución Rápida
+
+```bash
+cd e2etests
+npm install
+npm test
+```
+
+### Comandos Disponibles
+
+- `npm test` - Ejecuta todos los tests en modo headless
+- `npm run test:ui` - Abre la interfaz gráfica de Playwright (recomendado para desarrollo)
+- `npm run test:headed` - Ejecuta con el navegador visible
+- `npm run test:debug` - Modo debug con Playwright Inspector
+- `npm run test:report` - Ver el reporte HTML de la última ejecución
+
+### Configuración
+
+Los tests están configurados para:
+- Iniciar automáticamente el backend (puerto 3001) y frontend (puerto 5173)
+- Ejecutarse en Chromium por defecto
+- Generar reportes HTML con screenshots en caso de fallos
+
+**Para información detallada sobre los tests E2E, configuración avanzada, debugging y solución de problemas, consulta el [README de e2etests](e2etests/README.md).**
 
 ## 🔐 Seguridad
 

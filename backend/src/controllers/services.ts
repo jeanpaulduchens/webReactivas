@@ -41,7 +41,7 @@ router.put("/:id", async (req, res) => {
     const updatedService = await Service.findByIdAndUpdate(
       req.params.id,
       { name, durationMin, price },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
     if (updatedService) {
       res.json(updatedService);

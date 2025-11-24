@@ -16,7 +16,7 @@ declare global {
 const requestLogger = (
   request: Request,
   response: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   console.log("Method:", request.method);
   console.log("Path:  ", request.path);
@@ -25,10 +25,7 @@ const requestLogger = (
   next();
 };
 
-const unknownEndpoint = (
-  request: Request,
-  response: Response
-) => {
+const unknownEndpoint = (request: Request, response: Response) => {
   response.status(404).send({ error: "unknown endpoint" });
 };
 
@@ -36,7 +33,7 @@ const errorHandler = (
   error: { name: string; message: string },
   request: Request,
   response: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   logger.error(error.message);
 
@@ -49,7 +46,9 @@ const errorHandler = (
     error.name === "MongoServerError" &&
     error.message.includes("E11000 duplicate key error")
   ) {
-    return response.status(400).json({ error: "expected `username` to be unique" });
+    return response
+      .status(400)
+      .json({ error: "expected `username` to be unique" });
   } else if (error.name === "JsonWebTokenError") {
     return response.status(401).json({ error: "invalid token" });
   } else if (error.name === "TokenExpiredError") {
@@ -62,11 +61,11 @@ const errorHandler = (
 export const withUser = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const token = req.cookies?.token;
-    
+
     if (!token) {
       res.status(401).json({ error: "token missing" });
       return;
@@ -81,7 +80,7 @@ export const withUser = async (
       decodedToken.csrf === csrfToken
     ) {
       req.userId = decodedToken.id;
-      req.userRole = decodedToken.role; 
+      req.userRole = decodedToken.role;
       next();
     } else {
       res.status(401).json({ error: "invalid token" });
@@ -99,8 +98,8 @@ export const requireRole = (...allowedRoles: string[]) => {
     }
 
     if (!allowedRoles.includes(req.userRole)) {
-      return res.status(403).json({ 
-        error: "insufficient permissions"
+      return res.status(403).json({
+        error: "insufficient permissions",
       });
     }
 
