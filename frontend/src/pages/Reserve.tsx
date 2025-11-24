@@ -162,6 +162,7 @@ export default function Reservations() {
           <Calendar
             selectedDate={selectedDate}
             onDateSelect={setSelectedDate}
+            minDate={today}
           />
 
           {/* Slots */}
