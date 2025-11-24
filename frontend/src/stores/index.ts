@@ -2,3 +2,4 @@
 export { useAuthStore } from "./authStore";
 export { useReservationsStore } from "./reservationsStore";
 export { useUsersStore } from "./usersStore";
+export { useServicesStore } from "./servicesStore";

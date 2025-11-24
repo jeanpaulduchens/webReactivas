@@ -58,16 +58,28 @@ export default function Layout() {
             Mis reservas
           </button>
           {isAuthenticated && user?.role === "admin" && (
-            <button
-              onClick={() => navigate("/admin/usuarios")}
-              className={
-                location.pathname === "/admin/usuarios"
-                  ? "font-bold text-red-600"
-                  : "font-normal text-red-600"
-              }
-            >
-              Administración
-            </button>
+            <>
+              <button
+                onClick={() => navigate("/admin/usuarios")}
+                className={
+                  location.pathname === "/admin/usuarios"
+                    ? "font-bold text-red-600"
+                    : "font-normal text-red-600"
+                }
+              >
+                Admin Usuarios
+              </button>
+              <button
+                onClick={() => navigate("/admin/servicios")}
+                className={
+                  location.pathname === "/admin/servicios"
+                    ? "font-bold text-red-600"
+                    : "font-normal text-red-600"
+                }
+              >
+                Admin Servicios
+              </button>
+            </>
           )}
           {isAuthenticated ? (
             <>
