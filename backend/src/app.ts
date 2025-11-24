@@ -16,10 +16,21 @@ const app = express();
 mongoose.set("strictQuery", false);
 
 if (config.MONGODB_URI) {
+  const connectionOptions = config.MONGODB_DBNAME 
+    ? { dbName: config.MONGODB_DBNAME }
+    : {};
+    
   mongoose
-    .connect(config.MONGODB_URI, { dbName: config.MONGODB_DBNAME })
+    .connect(config.MONGODB_URI, connectionOptions)
     .then(async () => {
-      await seedServices();
+      logger.info(`Connected to MongoDB - Database: ${config.MONGODB_DBNAME || 'default'}`);
+      try {
+        await seedServices();
+        logger.info("Services seeded successfully");
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        logger.error("Error seeding services:", errorMessage);
+      }
     })
     .catch((error) => {
       logger.error("Error connecting to MongoDB:", error.message);

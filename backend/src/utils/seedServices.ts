@@ -33,10 +33,22 @@ const defaultServices = [
 ];
 
 export async function seedServices() {
-  for (const service of defaultServices) {
-    const exists = await Service.findOne({ name: service.name });
-    if (!exists) {
-      await Service.create(service);
+  try {
+    console.log("Starting to seed default services...");
+    
+    for (const service of defaultServices) {
+      const exists = await Service.findOne({ name: service.name });
+      if (!exists) {
+        await Service.create(service);
+        console.log(`Created service: ${service.name}`);
+      } else {
+        console.log(`Service already exists: ${service.name}`);
+      }
     }
+    
+    console.log("Finished seeding services successfully");
+  } catch (error) {
+    console.error("Error seeding services:", error);
+    throw error;
   }
 }
